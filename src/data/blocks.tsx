@@ -84,6 +84,18 @@ initializeVariableColors(variableDefinitions);
  * check your .env file and set VITE_SHOW_EXAMPLES=false.
  */
 
+import { collisionsIntroBlocks } from "./sections/collisionsIntro";
+import { momentumIntroBlocks } from "./sections/momentumIntro";
+import { stickTogetherBlocks } from "./sections/stickTogether";
+import { workedExampleBlocks } from "./sections/workedExample";
+import { bounceApartBlocks } from "./sections/bounceApart";
+import { collisionsWrapUpBlocks } from "./sections/collisionsWrapUp";
+
 export const blocks: ReactElement[] = [
-    // Start adding your blocks here!
+    ...collisionsIntroBlocks,
+    ...momentumIntroBlocks,
+    ...stickTogetherBlocks,
+    ...workedExampleBlocks,
+    ...bounceApartBlocks,
+    ...collisionsWrapUpBlocks,
 ];
