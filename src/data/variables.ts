@@ -191,6 +191,45 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
         correctAnswer: ['1', '1.0', '1 m/s'],
         color: '#8E90F5',
     },
+    // ─────────────────────────────────────────
+    // SECTION: Working It Out Step by Step
+    // ─────────────────────────────────────────
+    workedStage: {
+        defaultValue: 0,
+        type: 'number',
+        label: 'Worked example stage',
+        description: 'Position along the worked collision, from 0 (approaching) to 3 (moving off locked)',
+        min: 0,
+        max: 3,
+        step: 0.01,
+        color: '#62D0AD',
+    },
+    workedHighlight: {
+        defaultValue: '',
+        type: 'text',
+        label: 'Worked example highlight',
+        description: "Which element is highlighted across the trolleys and the working: '' | 'heavy' | 'light' | 'pair'",
+        color: '#62D0AD',
+        bgColor: 'rgba(98, 208, 173, 0.22)',
+    },
+    answerWorkedPairSpeed: {
+        defaultValue: '',
+        type: 'text',
+        label: 'Practice pair speed',
+        description: 'Student answer for a 5 kg trolley at 2 m/s locking onto a 3 kg trolley at 2 m/s the other way',
+        placeholder: '???',
+        correctAnswer: ['0.5', '.5', '0.50'],
+        color: '#8E90F5',
+    },
+    answerWorkedNegative: {
+        defaultValue: '',
+        type: 'text',
+        label: 'Practice negative velocity',
+        description: 'Student answer for the same pair when the 3 kg trolley arrives at 6 m/s',
+        placeholder: '???',
+        correctAnswer: ['-1', '\u22121', '-1.0'],
+        color: '#8E90F5',
+    },
     answerMomentumDirection: {
         defaultValue: '',
         type: 'text',
