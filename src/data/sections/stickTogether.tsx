@@ -354,8 +354,7 @@ export const stickTogetherBlocks: ReactElement[] = [
                 Fit magnets to the facing ends of the trolleys and they stop being two objects. They
                 leave the collision locked together as a single lump, with the combined mass and one
                 shared velocity. Before releasing them, slide the faint copy of the joined pair to where
-                you think it will be one second after they lock, then press play and see how close you
-                were.
+                you think it will be one second after they lock, then press play.
             </EditableParagraph>
         </Block>
     </StackLayout>,

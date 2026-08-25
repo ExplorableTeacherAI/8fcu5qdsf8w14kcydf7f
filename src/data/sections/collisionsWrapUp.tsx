@@ -29,8 +29,7 @@ export const collisionsWrapUpBlocks: ReactElement[] = [
             <EditableParagraph id="para-wrapup-forward" blockId="wrapup-forward">
                 The idea worth carrying away is the split between those two quantities. Momentum survives
                 every collision, while energy only survives the springy ones. That is why a car's crumple
-                zone is built to destroy energy on purpose, while the momentum goes wherever it was
-                always going to go. Next comes the same reasoning off the straight track, where two
+                zone is built to destroy energy on purpose. Next comes the same reasoning off the straight track, where two
                 objects meet at an angle and momentum has to balance in two directions at once.
             </EditableParagraph>
         </Block>
