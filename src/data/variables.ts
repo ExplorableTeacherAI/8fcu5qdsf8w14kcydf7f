@@ -81,9 +81,58 @@ export interface VariableDefinition {
  *    { defaultValue: { x: 5, y: 10 }, type: 'object', schema: '{ x: number, y: number }' }
  */
 export const variableDefinitions: Record<string, VariableDefinition> = {
-    // ========================================
-    // ADD YOUR VARIABLES HERE
-    // ========================================
+    // ─────────────────────────────────────────
+    // SECTION: Mass and Speed Together
+    // ─────────────────────────────────────────
+    momentumMass: {
+        defaultValue: 3,
+        type: 'number',
+        label: 'Trolley mass',
+        description: 'Mass of the single trolley, set by the stack of 1 kg blocks on its bed',
+        unit: 'kg',
+        min: 1,
+        max: 5,
+        step: 1,
+        color: '#64748B',
+    },
+    momentumVelocity: {
+        defaultValue: 2,
+        type: 'number',
+        label: 'Trolley velocity',
+        description: 'Signed velocity of the trolley along the track, negative to the left',
+        unit: 'm/s',
+        min: -3,
+        max: 3,
+        step: 0.1,
+        color: '#8E90F5',
+    },
+    momentumHighlight: {
+        defaultValue: '',
+        type: 'text',
+        label: 'Momentum view highlight',
+        description: "Which quantity is highlighted across both views: '' | 'mass' | 'velocity' | 'momentum'",
+        color: '#62D0AD',
+        bgColor: 'rgba(98, 208, 173, 0.22)',
+    },
+    answerMomentumProduct: {
+        defaultValue: '',
+        type: 'text',
+        label: 'Momentum product answer',
+        description: 'Student answer for the momentum of a 4 kg trolley at 2.5 m/s',
+        placeholder: '???',
+        correctAnswer: '10',
+        color: '#8E90F5',
+    },
+    answerMomentumDirection: {
+        defaultValue: '',
+        type: 'text',
+        label: 'Negative momentum answer',
+        description: 'Student answer for the momentum of the same trolley travelling left',
+        placeholder: '???',
+        correctAnswer: ['-10', '\u221210'],
+        color: '#8E90F5',
+    },
+
 
     // Uncomment and modify these examples for your lesson:
 
