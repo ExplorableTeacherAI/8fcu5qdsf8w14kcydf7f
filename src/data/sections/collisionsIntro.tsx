@@ -1,7 +1,227 @@
-import { type ReactElement } from "react";
+import React, { useEffect, useRef, useState, type ReactElement } from "react";
 import { Block } from "@/components/templates";
 import { StackLayout } from "@/components/layouts";
-import { EditableH1, EditableParagraph } from "@/components/atoms";
+import {
+    EditableH1,
+    EditableParagraph,
+    InlineTrigger,
+    InteractionHintSequence,
+} from "@/components/atoms";
+import { Figure } from "@/components/molecules";
+import { useVar, useSetVar } from "@/stores";
+import { clamp, useRafLoop, useSpring, type Vec2 } from "@/lib/motion";
+
+// ── The opening scene: heavy trolley into a light one, springy bumpers ───────
+const HEAVY_MASS = 2;
+const LIGHT_MASS = 1;
+const SPEED_PER_METRE = 1.2; // pulling back further means arriving faster
+const AFTER_SECONDS = 0.9;
+
+const VIEW_WIDTH = 560;
+const VIEW_HEIGHT = 160;
+const TRACK_Y = 100;
+const PX_PER_METRE = 60;
+const HEAVY_CONTACT_X = 250;
+const LIGHT_REST_X = 306;
+
+const INK = "#334155";
+const INK_STRUCTURE = "#64748B";
+const INK_QUIET = "#CBD5E1";
+const PAPER = "#F1F5F9";
+const ACCENT = "#62D0AD";
+
+const speedFor = (pullback: number) => pullback * SPEED_PER_METRE;
+const approachSecondsFor = (pullback: number) => pullback / speedFor(pullback); // constant
+
+function Trolley({ centerX, width, height, label, stroke, strokeWidth, fill = PAPER }: {
+    centerX: number;
+    width: number;
+    height: number;
+    label: string;
+    stroke: string;
+    strokeWidth: number;
+    fill?: string;
+}) {
+    const bodyTop = TRACK_Y - 10 - height;
+    return (
+        <g>
+            <rect x={centerX - width / 2} y={bodyTop} width={width} height={height} rx="4" fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
+            <circle cx={centerX - width / 2 + 12} cy={TRACK_Y - 8} r="7" fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
+            <circle cx={centerX + width / 2 - 12} cy={TRACK_Y - 8} r="7" fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
+            <text x={centerX} y={bodyTop + height / 2 + 4} fill={INK} fontSize="11" textAnchor="middle">
+                {label}
+            </text>
+        </g>
+    );
+}
+
+function OpeningCrashDrawing() {
+    const setVar = useSetVar();
+    const pullback = useVar<number>("introPullback", 1);
+    const time = useVar<number>("introTime", 0);
+    const playing = useVar<boolean>("introPlaying", false);
+
+    const [dragging, setDragging] = useState(false);
+    const [hovered, setHovered] = useState(false);
+    const draggingRef = useRef(false);
+    const svgRef = useRef<SVGSVGElement>(null);
+    const timeRef = useRef(0);
+    const heavyScale = useSpring(dragging || hovered ? 1.06 : 1, { stiffness: 400, damping: 26 });
+
+    const speed = speedFor(pullback);
+    const approachSeconds = approachSecondsFor(pullback);
+    const totalSeconds = approachSeconds + AFTER_SECONDS;
+
+    const heavyAfter = ((HEAVY_MASS - LIGHT_MASS) / (HEAVY_MASS + LIGHT_MASS)) * speed;
+    const lightAfter = ((2 * HEAVY_MASS) / (HEAVY_MASS + LIGHT_MASS)) * speed;
+
+    const startX = HEAVY_CONTACT_X - pullback * PX_PER_METRE;
+
+    const positionsAt = (t: number) => {
+        const clamped = clamp(t, 0, totalSeconds);
+        if (clamped <= approachSeconds) {
+            return {
+                heavy: startX + speed * PX_PER_METRE * clamped,
+                light: LIGHT_REST_X,
+            };
+        }
+        const since = clamped - approachSeconds;
+        return {
+            heavy: HEAVY_CONTACT_X + heavyAfter * PX_PER_METRE * since,
+            light: LIGHT_REST_X + lightAfter * PX_PER_METRE * since,
+        };
+    };
+
+    // Changing the pull-back rewinds the scene.
+    useEffect(() => {
+        timeRef.current = 0;
+        setVar("introTime", 0);
+        setVar("introPlaying", false);
+    }, [pullback, setVar]);
+
+    // A second push starts it over.
+    useEffect(() => {
+        if (playing && timeRef.current >= totalSeconds) {
+            timeRef.current = 0;
+            setVar("introTime", 0);
+        }
+    }, [playing, totalSeconds, setVar]);
+
+    useRafLoop(
+        (dt) => {
+            timeRef.current = Math.min(timeRef.current + dt, totalSeconds);
+            setVar("introTime", Math.round(timeRef.current * 100) / 100);
+            if (timeRef.current >= totalSeconds) setVar("introPlaying", false);
+        },
+        { paused: !playing },
+    );
+
+    const now = positionsAt(time);
+    const trail = [1, 2, 3, 4, 5]
+        .map((step) => time - step * 0.14)
+        .filter((t) => t > 0)
+        .map((t, index) => ({ ...positionsAt(t), opacity: 0.32 - index * 0.05 }));
+
+    const handlePointerMove = (event: React.PointerEvent<SVGRectElement>) => {
+        if (!draggingRef.current) return;
+        if (!svgRef.current) return;
+        const rect = svgRef.current.getBoundingClientRect();
+        const point: Vec2 = {
+            x: ((event.clientX - rect.left) / rect.width) * VIEW_WIDTH,
+            y: ((event.clientY - rect.top) / rect.height) * VIEW_HEIGHT,
+        };
+        const metres = (HEAVY_CONTACT_X - point.x) / PX_PER_METRE;
+        setVar("introPullback", clamp(Math.round(metres * 20) / 20, 0.4, 2));
+    };
+
+    return (
+        <svg
+            ref={svgRef}
+            viewBox={`0 0 ${VIEW_WIDTH} ${VIEW_HEIGHT}`}
+            className="block w-full select-none"
+            role="img"
+            aria-label="A heavy trolley that can be pulled back along a track and pushed into a lighter trolley waiting further along"
+        >
+            <defs>
+                <filter id="intro-trolley-shadow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feDropShadow dx="0" dy="1" stdDeviation="1.5" floodColor="#0F172A" floodOpacity="0.25" />
+                </filter>
+            </defs>
+
+            <line x1="24" y1={TRACK_Y} x2={VIEW_WIDTH - 24} y2={TRACK_Y} stroke={INK_QUIET} strokeWidth="1.5" />
+
+            {/* Where the push began — the before-state stays on screen */}
+            <line x1={startX} y1={TRACK_Y - 48} x2={startX} y2={TRACK_Y + 4} stroke={INK_QUIET} strokeWidth="1.5" strokeDasharray="4 5" />
+            <text x={clamp(startX, 45, 515)} y={TRACK_Y + 26} fill={INK_STRUCTURE} fontSize="11" textAnchor="middle">
+                pushed from here
+            </text>
+
+            {/* Where each trolley has been */}
+            {trail.map((mark, index) => (
+                <g key={index} opacity={Math.max(mark.opacity, 0.06)}>
+                    <circle cx={mark.heavy} cy={TRACK_Y + 12} r="3" fill={ACCENT} />
+                    <circle cx={mark.light} cy={TRACK_Y + 12} r="3" fill={INK_STRUCTURE} />
+                </g>
+            ))}
+
+            <Trolley centerX={now.light} width={48} height={26} label="light" stroke={INK_STRUCTURE} strokeWidth={1.5} />
+
+            <g transform={`translate(${now.heavy} ${TRACK_Y}) scale(${heavyScale}) translate(${-now.heavy} ${-TRACK_Y})`}>
+                <g filter="url(#intro-trolley-shadow)">
+                    <Trolley centerX={now.heavy} width={64} height={30} label="heavy" stroke={ACCENT} strokeWidth={2.5} />
+                </g>
+            </g>
+            <rect
+                x={now.heavy - 40}
+                y={TRACK_Y - 44}
+                width="80"
+                height="48"
+                fill="transparent"
+                style={{ cursor: dragging ? "grabbing" : "grab", touchAction: "none" }}
+                onPointerDown={(event) => {
+                    event.currentTarget.setPointerCapture(event.pointerId);
+                    draggingRef.current = true;
+                    setDragging(true);
+                }}
+                onPointerMove={handlePointerMove}
+                onPointerUp={() => { draggingRef.current = false; setDragging(false); }}
+                onPointerCancel={() => { draggingRef.current = false; setDragging(false); }}
+                onPointerEnter={() => setHovered(true)}
+                onPointerLeave={() => setHovered(false)}
+            />
+        </svg>
+    );
+}
+
+function OpeningCrashFigure() {
+    const setVar = useSetVar();
+    return (
+        <Figure
+            id="collisions-opening-crash"
+            playable
+            playVarName="introPlaying"
+            onReset={() => {
+                setVar("introPullback", 1);
+                setVar("introTime", 0);
+                setVar("introPlaying", false);
+            }}
+            caption="Drag the teal trolley back along the track to load a harder push, then send it in and watch where the two of them end up."
+        >
+            <OpeningCrashDrawing />
+            <InteractionHintSequence
+                hintKey="collisions-opening-drag"
+                steps={[
+                    {
+                        gesture: "drag-horizontal",
+                        label: "Drag the heavy trolley back along the track",
+                        position: { x: "34%", y: "50%" },
+                        dragPath: { type: "line", startOffset: { x: 26, y: 0 }, endOffset: { x: -26, y: 0 } },
+                    },
+                ]}
+            />
+        </Figure>
+    );
+}
 
 export const collisionsIntroBlocks: ReactElement[] = [
     <StackLayout key="layout-collisions-intro-title" maxWidth="xl">
@@ -15,10 +235,20 @@ export const collisionsIntroBlocks: ReactElement[] = [
     <StackLayout key="layout-collisions-intro-hook" maxWidth="xl">
         <Block id="collisions-intro-hook" padding="sm">
             <EditableParagraph id="para-collisions-intro-hook" blockId="collisions-intro-hook">
-                Two trolleys sit on a low-friction track in the lab. You give one a push, it runs into
-                the other, and half a second later both are moving in ways nobody in the room called out
-                in advance. Physics can call them, and with surprisingly little information.
+                Two trolleys sit on a low-friction track in the lab. Pull the heavy one back along the
+                track, give it{" "}
+                <InlineTrigger id="trigger-collisions-push" varName="introPlaying" value={true} icon="play">
+                    a push
+                </InlineTrigger>
+                , and half a second later both are moving in ways nobody in the room called out. Physics
+                can call them, and with surprisingly little information.
             </EditableParagraph>
+        </Block>
+    </StackLayout>,
+
+    <StackLayout key="layout-collisions-opening-crash" maxWidth="xl">
+        <Block id="block-1787708572562" padding="sm" hasVisualization>
+            <OpeningCrashFigure />
         </Block>
     </StackLayout>,
 

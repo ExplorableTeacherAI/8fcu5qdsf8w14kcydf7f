@@ -82,6 +82,37 @@ export interface VariableDefinition {
  */
 export const variableDefinitions: Record<string, VariableDefinition> = {
     // ─────────────────────────────────────────
+    // SECTION: Collisions (opening)
+    // ─────────────────────────────────────────
+    introPullback: {
+        defaultValue: 1,
+        type: 'number',
+        label: 'Pull back distance',
+        description: 'How far the heavy trolley is pulled back before the push, which sets how fast it arrives',
+        unit: 'm',
+        min: 0.4,
+        max: 2,
+        step: 0.05,
+        color: '#62D0AD',
+    },
+    introTime: {
+        defaultValue: 0,
+        type: 'number',
+        label: 'Opening playback time',
+        description: 'Seconds elapsed in the opening collision playback',
+        unit: 's',
+        min: 0,
+        max: 1.75,
+        step: 0.01,
+    },
+    introPlaying: {
+        defaultValue: false,
+        type: 'boolean',
+        label: 'Opening collision playing',
+        description: 'Whether the opening collision is running',
+    },
+
+    // ─────────────────────────────────────────
     // SECTION: Mass and Speed Together
     // ─────────────────────────────────────────
     momentumMass: {
