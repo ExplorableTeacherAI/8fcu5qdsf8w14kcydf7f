@@ -27,8 +27,8 @@
     "stick-heading",
     "stick-setup",
     "stick-formula",
-    "stick-visual",
     "stick-formula-live",
+    "stick-visual",
     "stick-reflect",
     "stick-question-shared",
     "stick-question-speed",
@@ -337,7 +337,8 @@
       "type": "split",
       "columns": [
         [
-          "stick-formula"
+          "stick-formula",
+          "stick-formula-live"
         ],
         [
           "stick-visual"
@@ -348,18 +349,6 @@
         "gap": "lg",
         "reverse": false,
         "align": "start"
-      }
-    },
-    {
-      "id": "layout-stick-formula-live",
-      "type": "stack",
-      "columns": [
-        [
-          "stick-formula-live"
-        ]
-      ],
-      "props": {
-        "maxWidth": "xl"
       }
     },
     {
