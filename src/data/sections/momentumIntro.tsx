@@ -6,6 +6,7 @@ import {
     EditableParagraph,
     InlineClozeInput,
     InlineFeedback,
+    InlineFormula,
     InlineLinkedHighlight,
     InlineScrubbleNumber,
     InlineTooltip,
@@ -22,10 +23,7 @@ import {
     scrubVarsFromDefinitions,
 } from "../variables";
 import {
-    ANSWER,
-    ANSWER_BG,
     FORMULA_COLORS,
-    INK,
     INK_QUIET,
     INK_STRUCTURE,
     MASS,
@@ -33,6 +31,7 @@ import {
     MASS_FILL,
     MASS_TEXT,
     MOMENTUM,
+    MOMENTUM_BG,
     MOMENTUM_TEXT,
     PAPER,
     VELOCITY,
@@ -63,12 +62,6 @@ const TRACK_Y = 236;
 const ARROW_Y = 207;
 const PX_PER_VELOCITY = 36;
 const STRIP_Y = 270;
-
-// Bar geometry (view B)
-const BAR_TOP = 130;
-const BAR_BOTTOM = 170;
-const BAR_MID_Y = (BAR_TOP + BAR_BOTTOM) / 2;
-const AXIS_Y = 200;
 
 // ── One formatter per quantity, used by both figures and the prose ───────────
 const formatMass = (value: number) => `${Math.round(value)} kg`;
@@ -289,8 +282,28 @@ function TrolleyDrawing() {
     );
 }
 
-// ── VIEW B: the momentum bar (the same quantity, measured) ───────────────────
-function MomentumBarDrawing() {
+// ── VIEW B: momentum against velocity — the same quantity, graphed ───────────
+// Same 36 px per m/s as the velocity arrow (horizontal) and the same 6 px per
+// kg m/s as the momentum strip (vertical), so the point sits exactly one arrow
+// to the right of the origin and one strip above it.
+const ORIGIN_X = 200;
+const ORIGIN_Y = 150;
+const MAX_VELOCITY = 3;
+const MAX_MOMENTUM = 15;
+const PLOT_HALF_WIDTH = MAX_VELOCITY * PX_PER_VELOCITY; // 108
+const PLOT_HALF_HEIGHT = MAX_MOMENTUM * PX_PER_MOMENTUM; // 90
+const MASS_FAMILY = [1, 2, 3, 4, 5];
+
+const plotX = (velocity: number) => ORIGIN_X + velocity * PX_PER_VELOCITY;
+const plotY = (momentum: number) => ORIGIN_Y - momentum * PX_PER_MOMENTUM;
+
+/** The line p = m·v, clipped to the plot: it leaves through the top for heavy masses. */
+const lineEnds = (massValue: number) => {
+    const reach = Math.min(MAX_VELOCITY, MAX_MOMENTUM / massValue);
+    return { x1: plotX(-reach), y1: plotY(-massValue * reach), x2: plotX(reach), y2: plotY(massValue * reach) };
+};
+
+function MomentumGraphDrawing() {
     const setVar = useSetVar();
     const mass = useVar<number>("momentumMass", DEFAULT_MASS);
     const velocity = useVar<number>("momentumVelocity", DEFAULT_VELOCITY);
@@ -303,17 +316,20 @@ function MomentumBarDrawing() {
     const handleScale = useSpring(dragging || hovered ? 1.15 : 1, { stiffness: 400, damping: 26 });
 
     const momentum = mass * velocity;
-    const barEndX = MOMENTUM_ANCHOR_X + momentum * PX_PER_MOMENTUM;
+    const pointX = plotX(velocity);
+    const pointY = plotY(momentum);
+    const line = lineEnds(mass);
 
-    // Bidirectional: dragging the bar end sets the velocity that would give it.
+    // Bidirectional: the point is tied to the line, so only its x (the velocity) is read.
     const handlePointerMove = (event: React.PointerEvent<SVGCircleElement>) => {
         if (!draggingRef.current) return;
         const point = svgPointFromEvent(event, svgRef.current);
-        const targetMomentum = (point.x - MOMENTUM_ANCHOR_X) / PX_PER_MOMENTUM;
-        setVar("momentumVelocity", clamp(Math.round((targetMomentum / mass) * 10) / 10, -3, 3));
+        const raw = (point.x - ORIGIN_X) / PX_PER_VELOCITY;
+        setVar("momentumVelocity", clamp(Math.round(raw * 10) / 10, -MAX_VELOCITY, MAX_VELOCITY));
     };
 
-    const ticks = [-15, -10, -5, 0, 5, 10, 15];
+    const momentumTicks = [-15, -10, -5, 5, 10, 15];
+    const velocityTicks = [-3, -2, -1, 1, 2, 3];
 
     return (
         <svg
@@ -321,83 +337,96 @@ function MomentumBarDrawing() {
             viewBox={`0 0 ${VIEW_WIDTH} ${VIEW_HEIGHT}`}
             className="block w-full select-none"
             role="img"
-            aria-label="A horizontal bar showing the trolley's momentum against a scale in kilogram metres per second"
+            aria-label="A graph of momentum against velocity. A straight line through the origin has the trolley's mass as its slope, and a draggable teal point on it marks the current velocity and momentum"
         >
             <defs>
-                <filter id="momentum-bar-shadow" x="-50%" y="-50%" width="200%" height="200%">
+                <filter id="momentum-graph-shadow" x="-50%" y="-50%" width="200%" height="200%">
                     <feDropShadow dx="0" dy="1" stdDeviation="1.5" floodColor="#0F172A" floodOpacity="0.25" />
                 </filter>
             </defs>
 
             <SharedReadouts mass={mass} momentum={momentum} />
 
-            {/* Scale — same anchor and same pixels per unit as the strip in view A */}
+            {/* Axes and ticks — ambient structure */}
             <g opacity={opacity("__structure")} style={EASE_150}>
-                <line x1={MOMENTUM_ANCHOR_X} y1={BAR_TOP - 20} x2={MOMENTUM_ANCHOR_X} y2={AXIS_Y} stroke={INK_QUIET} strokeWidth="1.5" />
-                <line x1="90" y1={AXIS_Y} x2="270" y2={AXIS_Y} stroke={INK_QUIET} strokeWidth="1.5" />
-                <g fill={INK} fontSize="11" textAnchor="middle" style={{ fontVariantNumeric: "tabular-nums" }}>
-                    {ticks.map((tick) => (
-                        <g key={tick}>
-                            <line
-                                x1={MOMENTUM_ANCHOR_X + tick * PX_PER_MOMENTUM}
-                                y1={AXIS_Y}
-                                x2={MOMENTUM_ANCHOR_X + tick * PX_PER_MOMENTUM}
-                                y2={AXIS_Y + 6}
-                                stroke={INK_QUIET}
-                                strokeWidth="1.5"
-                            />
-                            <text x={MOMENTUM_ANCHOR_X + tick * PX_PER_MOMENTUM} y={AXIS_Y + 20}>
-                                {tick < 0 ? `−${Math.abs(tick)}` : `${tick}`}
-                            </text>
+                <line x1={ORIGIN_X - PLOT_HALF_WIDTH - 12} y1={ORIGIN_Y} x2={ORIGIN_X + PLOT_HALF_WIDTH + 12} y2={ORIGIN_Y} stroke={INK_QUIET} strokeWidth="1.5" />
+                <line x1={ORIGIN_X} y1={ORIGIN_Y - PLOT_HALF_HEIGHT - 12} x2={ORIGIN_X} y2={ORIGIN_Y + PLOT_HALF_HEIGHT + 12} stroke={INK_QUIET} strokeWidth="1.5" />
+                <g fontSize="10" fill={INK_STRUCTURE} style={{ fontVariantNumeric: "tabular-nums" }}>
+                    {velocityTicks.map((tick) => (
+                        <g key={`v${tick}`}>
+                            <line x1={plotX(tick)} y1={ORIGIN_Y - 3} x2={plotX(tick)} y2={ORIGIN_Y + 3} stroke={INK_QUIET} strokeWidth="1.5" />
+                            <text x={plotX(tick)} y={ORIGIN_Y + 15} textAnchor="middle">{tick < 0 ? `−${-tick}` : tick}</text>
+                        </g>
+                    ))}
+                    {momentumTicks.map((tick) => (
+                        <g key={`p${tick}`}>
+                            <line x1={ORIGIN_X - 3} y1={plotY(tick)} x2={ORIGIN_X + 3} y2={plotY(tick)} stroke={INK_QUIET} strokeWidth="1.5" />
+                            <text x={ORIGIN_X - 7} y={plotY(tick) + 3.5} textAnchor="end">{tick < 0 ? `−${-tick}` : tick}</text>
                         </g>
                     ))}
                 </g>
-                <text x={MOMENTUM_ANCHOR_X} y={AXIS_Y + 44} fill={INK_STRUCTURE} fontSize="11" textAnchor="middle">
-                    kg m/s
+                <text x={ORIGIN_X + PLOT_HALF_WIDTH + 12} y={ORIGIN_Y + PLOT_HALF_HEIGHT + 10} fill={VELOCITY_TEXT} fontSize="11" textAnchor="end">
+                    velocity, m/s
+                </text>
+                <text x={ORIGIN_X + 8} y={ORIGIN_Y - PLOT_HALF_HEIGHT - 10} fill={MOMENTUM_TEXT} fontSize="11">
+                    momentum, kg m/s
+                </text>
+
+                {/* The whole family: one line per possible mass, so steeper reads as heavier */}
+                {MASS_FAMILY.filter((candidate) => candidate !== mass).map((candidate) => {
+                    const ends = lineEnds(candidate);
+                    return (
+                        <g key={candidate}>
+                            <line {...ends} stroke={INK_QUIET} strokeWidth="1" />
+                            <text x={ends.x2 + 4} y={ends.y2 + 3} fill={INK_QUIET} fontSize="9">{`${candidate} kg`}</text>
+                        </g>
+                    );
+                })}
+            </g>
+
+            {/* MASS group — the active line: its steepness is the mass */}
+            <g {...hoverProps("massStack")} opacity={opacity("massStack")} style={EASE_150}>
+                <Halo active={isActive("massStack")}>
+                    <line {...line} stroke={MASS} strokeWidth={weight("massStack", 2.5) + 6} strokeLinecap="round" />
+                </Halo>
+                <line {...line} stroke={MASS} strokeWidth={weight("massStack", 2.5)} strokeLinecap="round" />
+                <text x={line.x2 + 4} y={line.y2 + 3} fill={MASS_TEXT} fontSize="11" fontWeight="600" style={{ fontVariantNumeric: "tabular-nums" }}>
+                    {`${mass} kg`}
                 </text>
             </g>
 
-            {/* MOMENTUM group — counterpart of the strip under the trolley */}
+            {/* VELOCITY group — how far along the bottom the point sits */}
+            <g {...hoverProps("velocityArrow")} opacity={opacity("velocityArrow")} style={EASE_150}>
+                <Halo active={isActive("velocityArrow")}>
+                    <line x1={pointX} y1={pointY} x2={pointX} y2={ORIGIN_Y} stroke={VELOCITY} strokeWidth={weight("velocityArrow", 1.5) + 6} strokeLinecap="round" />
+                </Halo>
+                <line x1={pointX} y1={pointY} x2={pointX} y2={ORIGIN_Y} stroke={VELOCITY} strokeWidth={weight("velocityArrow", 1.5)} strokeDasharray="3 4" />
+                <circle cx={pointX} cy={ORIGIN_Y} r="3.5" fill={VELOCITY} />
+                <text x={clamp(pointX, 60, 320)} y={ORIGIN_Y + (momentum >= 0 ? 28 : -26)} fill={VELOCITY_TEXT} fontSize="12" textAnchor="middle" style={{ fontVariantNumeric: "tabular-nums" }}>
+                    {formatVelocity(velocity)}
+                </text>
+            </g>
+
+            {/* MOMENTUM group — how high up the side the point sits: counterpart of the strip */}
             <g {...hoverProps("momentumBar")} opacity={opacity("momentumBar")} style={EASE_150}>
                 <Halo active={isActive("momentumBar")}>
-                    <rect
-                        x={Math.min(MOMENTUM_ANCHOR_X, barEndX) - 4}
-                        y={BAR_TOP - 4}
-                        width={Math.abs(barEndX - MOMENTUM_ANCHOR_X) + 8}
-                        height={BAR_BOTTOM - BAR_TOP + 8}
-                        rx="6"
-                        fill={MOMENTUM}
-                    />
+                    <line x1={ORIGIN_X} y1={pointY} x2={pointX} y2={pointY} stroke={MOMENTUM} strokeWidth={weight("momentumBar", 1.5) + 6} strokeLinecap="round" />
                 </Halo>
-                <rect
-                    x={Math.min(MOMENTUM_ANCHOR_X, barEndX)}
-                    y={BAR_TOP}
-                    width={Math.abs(barEndX - MOMENTUM_ANCHOR_X)}
-                    height={BAR_BOTTOM - BAR_TOP}
-                    rx="3"
-                    fill={MOMENTUM}
-                    stroke={MOMENTUM}
-                    strokeWidth={weight("momentumBar", 1.5)}
-                />
-                <text
-                    x={clamp((MOMENTUM_ANCHOR_X + barEndX) / 2, 70, 310)}
-                    y={BAR_TOP - 14}
-                    fill={MOMENTUM_TEXT}
-                    fontSize="12"
-                    textAnchor="middle"
-                    style={{ fontVariantNumeric: "tabular-nums" }}
-                >
+                <line x1={ORIGIN_X} y1={pointY} x2={pointX} y2={pointY} stroke={MOMENTUM} strokeWidth={weight("momentumBar", 1.5)} strokeDasharray="3 4" />
+                <circle cx={ORIGIN_X} cy={pointY} r="3.5" fill={MOMENTUM} />
+                {/* label on the side of the axis the point is NOT on */}
+                <text x={velocity < 0 ? ORIGIN_X + 12 : ORIGIN_X - 28} y={clamp(pointY, 50, 258) + 4} fill={MOMENTUM_TEXT} fontSize="12" textAnchor={velocity < 0 ? "start" : "end"} style={{ fontVariantNumeric: "tabular-nums" }}>
                     {formatMomentum(momentum)}
                 </text>
+                <g transform={`translate(${pointX} ${pointY}) scale(${handleScale})`}>
+                    <circle r="8" fill={MOMENTUM} filter="url(#momentum-graph-shadow)" />
+                </g>
             </g>
 
-            {/* Draggable bar end */}
-            <g transform={`translate(${barEndX} ${BAR_MID_Y}) scale(${handleScale})`}>
-                <circle r="8" fill={MOMENTUM} filter="url(#momentum-bar-shadow)" />
-            </g>
+            {/* Draggable point — tied to the line */}
             <circle
-                cx={barEndX}
-                cy={BAR_MID_Y}
+                cx={pointX}
+                cy={pointY}
                 r="24"
                 fill="transparent"
                 style={{ cursor: dragging ? "grabbing" : "grab", touchAction: "none" }}
@@ -459,7 +488,7 @@ function TrolleyFigure() {
     );
 }
 
-function MomentumBarFigure() {
+function MomentumGraphFigure() {
     const setVar = useSetVar();
     return (
         <Figure
@@ -469,17 +498,17 @@ function MomentumBarFigure() {
                 setVar("momentumVelocity", DEFAULT_VELOCITY);
                 setVar("momentumHighlight", "");
             }}
-            caption="The same momentum, shown on a scale. Drag the end of the bar and the trolley changes speed to match."
+            caption="The same momentum on a graph: velocity along the bottom, momentum up the side. The steepness of the amber line is the mass. Drag the teal point along the line and the trolley changes speed to match."
         >
-            <MomentumBarDrawing />
+            <MomentumGraphDrawing />
             <InteractionHintSequence
-                hintKey="momentum-bar-drag"
+                hintKey="momentum-graph-drag"
                 steps={[
                     {
-                        gesture: "drag-horizontal",
-                        label: "Drag the end of the teal bar",
-                        position: { x: "57%", y: "50%" },
-                        dragPath: { type: "line", startOffset: { x: -26, y: 0 }, endOffset: { x: 26, y: 0 } },
+                        gesture: "drag",
+                        label: "Drag the teal point along the line",
+                        position: { x: "71%", y: "34%" },
+                        dragPath: { type: "line", startOffset: { x: -24, y: 12 }, endOffset: { x: 24, y: -12 } },
                     },
                 ]}
             />
@@ -515,10 +544,10 @@ export const momentumIntroBlocks: ReactElement[] = [
                 A heavy trolley moving slowly and a light trolley moving fast can be just as hard to
                 stop. So neither <MassWord /> nor <VelocityWord /> on its own tells you how much push an
                 object brings to a crash. What does is the two multiplied together. This is called{" "}
-                <InlineTooltip id="tooltip-momentum-definition" color={ANSWER} bgColor={ANSWER_BG} tooltip="Momentum is mass times velocity. It says how much motion an object has, and which way it is going.">
+                <InlineTooltip id="tooltip-momentum-definition" color={MOMENTUM_TEXT} bgColor={MOMENTUM_BG} tooltip="Momentum is mass times velocity. It says how much motion an object has, and which way it is going.">
                     momentum
                 </InlineTooltip>
-                . Stack{" "}
+                , written <InlineFormula latex="\clr{p}{p}" colorMap={FORMULA_COLORS} />. Stack{" "}
                 <InlineLinkedHighlight
                     varName="momentumHighlight"
                     highlightId="massStack"
@@ -544,9 +573,9 @@ export const momentumIntroBlocks: ReactElement[] = [
                     highlightId="momentumBar"
                     {...linkedHighlightPropsFromDefinition(getVariableInfo("momentumHighlight"))}
                 >
-                    teal bar
+                    teal point
                 </InlineLinkedHighlight>{" "}
-                beside it change.
+                on the graph beside it moves.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -554,9 +583,14 @@ export const momentumIntroBlocks: ReactElement[] = [
     <StackLayout key="layout-momentum-formula" maxWidth="xl">
         <Block id="momentum-formula" padding="lg">
             <FormulaBlock
-                latex="\clr{p}{p} = \clr{m}{m} \times \clr{v}{v} = \scrub{momentumMass} \times \scrub{momentumVelocity} = \val{momentumProduct}\,\text{kg m/s}"
+                latex="\highlight{momentumBar}{p} = \highlight{massStack}{m} \times \highlight{velocityArrow}{v} = \scrub{momentumMass} \times \scrub{momentumVelocity} = \val{momentumProduct}\,\text{kg m/s}"
                 colorMap={FORMULA_COLORS}
                 variables={scrubVarsFromDefinitions(["momentumMass", "momentumVelocity", "momentumProduct"])}
+                linkedHighlights={{
+                    momentumBar: { varName: "momentumHighlight", color: MOMENTUM_TEXT, bgColor: MOMENTUM_BG },
+                    massStack: { varName: "momentumHighlight", color: MASS_TEXT, bgColor: MASS_BG },
+                    velocityArrow: { varName: "momentumHighlight", color: VELOCITY_TEXT, bgColor: VELOCITY_BG },
+                }}
             />
         </Block>
     </StackLayout>,
@@ -566,7 +600,7 @@ export const momentumIntroBlocks: ReactElement[] = [
             <TrolleyFigure />
         </Block>
         <Block id="momentum-bar-visual" padding="sm" hasVisualization>
-            <MomentumBarFigure />
+            <MomentumGraphFigure />
         </Block>
     </SplitLayout>,
 
