@@ -21,7 +21,30 @@ import {
     getVariableInfo,
     linkedHighlightPropsFromDefinition,
     numberPropsFromDefinition,
+    scrubVarsFromDefinitions,
 } from "../variables";
+import {
+    ANSWER,
+    ANSWER_BG,
+    EASE_150,
+    ENERGY,
+    ENERGY_BG,
+    ENERGY_TEXT,
+    FORMULA_COLORS,
+    HEAVY_EDGE,
+    HEAVY_FILL,
+    INK,
+    INK_QUIET,
+    INK_STRUCTURE,
+    LIGHT_EDGE,
+    LIGHT_FILL,
+    MOMENTUM,
+    MOMENTUM_BG,
+    MOMENTUM_TEXT,
+    VELOCITY,
+    VELOCITY_TEXT,
+} from "./collisionPalette";
+import { EnergyWord, HeavyWord, LightWord, LivePill, MomentumWord } from "./lessonWords";
 
 // ── The model: 2 kg into a stationary 1 kg, run two ways ─────────────────────
 const MOVING_MASS = 2;
@@ -41,26 +64,17 @@ const PX_PER_METRE = 40;
 const PX_PER_VELOCITY = 22;
 const MOVING_CONTACT_X = 218;
 const RESTING_CONTACT_X = 274;
+const ARROW_Y = 96 - 44; // just above the top trolley's body, never through its label
 
 const BAR_LEFT = 120;
 const BAR_HEIGHT = 13;
 const SCALE_MOMENTUM = 45; // px per kg m/s
 const SCALE_ENERGY = 26; // px per joule
 
-const INK = "#334155";
-const INK_STRUCTURE = "#64748B";
-const INK_QUIET = "#CBD5E1";
-const PAPER = "#F1F5F9";
-const MOMENTUM_HUE = "#62D0AD";
-const ENERGY_HUE = "#AC8BF9";
-const VELOCITY_HUE = "#8E90F5";
-
 const formatMomentum = (value: number) => `${value.toFixed(1)} kg m/s`;
 const formatEnergy = (value: number) => `${value.toFixed(1)} J`;
 const formatPercent = (value: number) => `${Math.round(value * 100)}%`;
 const formatSpeed = (value: number) => `${value.toFixed(1)} m/s`;
-
-const EASE_150 = { transition: "opacity 150ms ease, stroke-width 150ms ease" } as const;
 
 const useHighlightState = () => {
     const highlight = useVar<string>("bounceHighlight", "");
@@ -85,7 +99,7 @@ const svgPointFromEvent = (event: React.PointerEvent, svg: SVGSVGElement | null)
     };
 };
 
-function Trolley({ centerX, trackY, width, height, label, stroke, strokeWidth, fill = PAPER }: {
+function Trolley({ centerX, trackY, width, height, label, stroke, strokeWidth, fill }: {
     centerX: number;
     trackY: number;
     width: number;
@@ -93,7 +107,7 @@ function Trolley({ centerX, trackY, width, height, label, stroke, strokeWidth, f
     label: string;
     stroke: string;
     strokeWidth: number;
-    fill?: string;
+    fill: string;
 }) {
     const bodyTop = trackY - 10 - height;
     return (
@@ -101,7 +115,7 @@ function Trolley({ centerX, trackY, width, height, label, stroke, strokeWidth, f
             <rect x={centerX - width / 2} y={bodyTop} width={width} height={height} rx="4" fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
             <circle cx={centerX - width / 2 + 12} cy={trackY - 8} r="7" fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
             <circle cx={centerX + width / 2 - 12} cy={trackY - 8} r="7" fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
-            <text x={centerX} y={bodyTop + height / 2 + 4} fill={INK} fontSize="12" textAnchor="middle" style={{ fontVariantNumeric: "tabular-nums" }}>
+            <text x={centerX} y={bodyTop + height / 2 + 4} fill={stroke} fontSize="12" fontWeight="600" textAnchor="middle" style={{ fontVariantNumeric: "tabular-nums" }}>
                 {label}
             </text>
         </g>
@@ -109,10 +123,11 @@ function Trolley({ centerX, trackY, width, height, label, stroke, strokeWidth, f
 }
 
 /** One quantity bar: the value before the crash stays as a dashed outline. */
-function QuantityBar({ y, label, hue, id, before, after, scale, format, suffix }: {
+function QuantityBar({ y, label, hue, textHue, id, before, after, scale, format, suffix }: {
     y: number;
     label: string;
     hue: string;
+    textHue: string;
     id: string;
     before: number;
     after: number;
@@ -133,7 +148,7 @@ function QuantityBar({ y, label, hue, id, before, after, scale, format, suffix }
             )}
             <rect x={BAR_LEFT} y={y} width={beforeWidth} height={BAR_HEIGHT} rx="3" fill="none" stroke={hue} strokeWidth="1.5" strokeDasharray="4 4" />
             <rect x={BAR_LEFT} y={y} width={afterWidth} height={BAR_HEIGHT} rx="3" fill={hue} stroke={hue} strokeWidth={weight(id, 1.5)} />
-            <text x={BAR_LEFT + Math.max(beforeWidth, afterWidth) + 10} y={y + BAR_HEIGHT - 1} fill={hue} fontSize="12" style={{ fontVariantNumeric: "tabular-nums" }}>
+            <text x={BAR_LEFT + Math.max(beforeWidth, afterWidth) + 10} y={y + BAR_HEIGHT - 1} fill={textHue} fontSize="12" style={{ fontVariantNumeric: "tabular-nums" }}>
                 {`${format(after)}${suffix ?? ""}`}
             </text>
         </g>
@@ -181,6 +196,10 @@ function ComparisonDrawing() {
     const sinceImpact = collided ? time - APPROACH_SECONDS : 0;
 
     const before = { momentum: momentumBefore(speed), energy: energyBefore(speed) };
+    useEffect(() => {
+        setVar("bounceEnergyBefore", Number(before.energy.toFixed(1)));
+        setVar("bounceEnergyLocked", Number((before.energy * ENERGY_KEPT_WHEN_LOCKED).toFixed(1)));
+    }, [before.energy, setVar]);
 
     // Elastic: the classic 1D result for 2 kg into a stationary 1 kg.
     const elasticMoving = ((MOVING_MASS - RESTING_MASS) / (MOVING_MASS + RESTING_MASS)) * speed;
@@ -199,7 +218,7 @@ function ComparisonDrawing() {
 
     const rows = [
         {
-            id: "bounce",
+            id: "bounceRowBounce",
             trackY: 96,
             title: "springy bumpers: they bounce apart",
             movingAfter: elasticMoving,
@@ -208,7 +227,7 @@ function ComparisonDrawing() {
             joined: false,
         },
         {
-            id: "stick",
+            id: "bounceRowStick",
             trackY: 256,
             title: "magnets: they lock together",
             movingAfter: lockedVelocity,
@@ -248,13 +267,13 @@ function ComparisonDrawing() {
 
                         <g {...hoverProps(row.id)} opacity={opacity(row.id)} style={EASE_150}>
                             {row.joined && collided && (
-                                <line x1={movingX - 32} y1={row.trackY - 46} x2={restingX + 24} y2={row.trackY - 46} stroke={MOMENTUM_HUE} strokeWidth={weight(row.id, 2.5)} strokeLinecap="round" />
+                                <line x1={movingX - 32} y1={row.trackY - 46} x2={restingX + 24} y2={row.trackY - 46} stroke={INK_STRUCTURE} strokeWidth={weight(row.id, 2.5)} strokeLinecap="round" />
                             )}
-                            <Trolley centerX={movingX} trackY={row.trackY} width={64} height={28} label="2 kg" stroke={INK_STRUCTURE} strokeWidth={weight(row.id, 1.5)} />
-                            <Trolley centerX={restingX} trackY={row.trackY} width={48} height={24} label="1 kg" stroke={INK_STRUCTURE} strokeWidth={weight(row.id, 1.5)} />
+                            <Trolley centerX={movingX} trackY={row.trackY} width={64} height={28} label="2 kg" stroke={HEAVY_EDGE} fill={HEAVY_FILL} strokeWidth={weight(row.id, 1.5)} />
+                            <Trolley centerX={restingX} trackY={row.trackY} width={48} height={24} label="1 kg" stroke={LIGHT_EDGE} fill={LIGHT_FILL} strokeWidth={weight(row.id, 1.5)} />
                             {collided && (
-                                <text x={clamp(restingX, 60, 460)} y={row.trackY + 22} fill={INK_STRUCTURE} fontSize="11" textAnchor="middle" style={{ fontVariantNumeric: "tabular-nums" }}>
-                                    {`1 kg leaves at ${formatSpeed(row.restingAfter)}`}
+                                <text x={clamp(restingX, 60, 460)} y={row.trackY + 22} fill={VELOCITY_TEXT} fontSize="11" textAnchor="middle" style={{ fontVariantNumeric: "tabular-nums" }}>
+                                    {row.joined ? `both leave at ${formatSpeed(row.restingAfter)}` : `1 kg leaves at ${formatSpeed(row.restingAfter)}`}
                                 </text>
                             )}
                         </g>
@@ -262,8 +281,9 @@ function ComparisonDrawing() {
                         <QuantityBar
                             y={row.trackY + 34}
                             label="momentum"
-                            hue={MOMENTUM_HUE}
-                            id="momentum"
+                            hue={MOMENTUM}
+                            textHue={MOMENTUM_TEXT}
+                            id="bounceMomentum"
                             before={before.momentum}
                             after={before.momentum}
                             scale={SCALE_MOMENTUM}
@@ -272,8 +292,9 @@ function ComparisonDrawing() {
                         <QuantityBar
                             y={row.trackY + 58}
                             label="energy"
-                            hue={ENERGY_HUE}
-                            id="energy"
+                            hue={ENERGY}
+                            textHue={ENERGY_TEXT}
+                            id="bounceEnergy"
                             before={before.energy}
                             after={collided ? row.energyAfter : before.energy}
                             scale={SCALE_ENERGY}
@@ -285,27 +306,27 @@ function ComparisonDrawing() {
             })}
 
             {/* The one control inside the picture: the incoming speed, shared by both rows */}
-            <g {...hoverProps("bounce")} opacity={opacity("bounce")} style={EASE_150}>
+            <g {...hoverProps("bounceRowBounce")} opacity={opacity("bounceRowBounce")} style={EASE_150}>
                 <line
                     x1={MOVING_CONTACT_X - speed * PX_PER_METRE * approachRemaining}
-                    y1={96 - 24}
+                    y1={ARROW_Y}
                     x2={arrowTipX}
-                    y2={96 - 24}
-                    stroke={VELOCITY_HUE}
-                    strokeWidth={weight("bounce", 3)}
+                    y2={ARROW_Y}
+                    stroke={VELOCITY}
+                    strokeWidth={weight("bounceRowBounce", 3)}
                     strokeLinecap="round"
                 />
-                <polygon points={`${arrowTipX + 9},${96 - 24} ${arrowTipX - 2},${96 - 30} ${arrowTipX - 2},${96 - 18}`} fill={VELOCITY_HUE} />
-                <text x={clamp(arrowTipX, 60, 480)} y={96 - 48} fill={VELOCITY_HUE} fontSize="12" textAnchor="middle" style={{ fontVariantNumeric: "tabular-nums" }}>
+                <polygon points={`${arrowTipX + 9},${ARROW_Y} ${arrowTipX - 2},${ARROW_Y - 6} ${arrowTipX - 2},${ARROW_Y + 6}`} fill={VELOCITY} />
+                <text x={clamp(arrowTipX + 16, 60, 480)} y={ARROW_Y + 4} fill={VELOCITY_TEXT} fontSize="12" textAnchor="start" style={{ fontVariantNumeric: "tabular-nums" }}>
                     {formatSpeed(speed)}
                 </text>
             </g>
-            <g transform={`translate(${arrowTipX} ${96 - 24}) scale(${handleScale})`}>
-                <circle r="7" fill={VELOCITY_HUE} filter="url(#bounce-handle-shadow)" />
+            <g transform={`translate(${arrowTipX} ${ARROW_Y}) scale(${handleScale})`}>
+                <circle r="7" fill={VELOCITY} filter="url(#bounce-handle-shadow)" />
             </g>
             <circle
                 cx={arrowTipX}
-                cy={96 - 24}
+                cy={ARROW_Y}
                 r="22"
                 fill="transparent"
                 style={{ cursor: dragging ? "grabbing" : "grab", touchAction: "none" }}
@@ -337,7 +358,7 @@ function ComparisonFigure() {
                 setVar("bouncePlaying", false);
                 setVar("bounceHighlight", "");
             }}
-            caption="Pull the arrow on the top trolley to choose the incoming speed, then press play to run both crashes at once. The dashed outline on each bar is the value before the crash."
+            caption="Pull the indigo arrow on the top trolley to choose the incoming speed, then press play to run both crashes at once. The dashed outline on each bar is the value before the crash: the teal momentum bar never changes, the violet energy bar sometimes does."
         >
             <ComparisonDrawing />
             <div className="px-6 pb-5">
@@ -354,7 +375,7 @@ function ComparisonFigure() {
                     {
                         gesture: "drag-horizontal",
                         label: "Pull the arrow to set the incoming speed",
-                        position: { x: "44%", y: "20%" },
+                        position: { x: "46%", y: "13%" },
                         dragPath: { type: "line", startOffset: { x: -26, y: 0 }, endOffset: { x: 26, y: 0 } },
                     },
                     {
@@ -366,6 +387,17 @@ function ComparisonFigure() {
             />
         </Figure>
     );
+}
+
+/** The incoming kinetic energy and what the locked pair keeps of it, live in the prose. */
+function EnergyGoingIn() {
+    const speed = useVar<number>("bounceSpeed", 2);
+    return <LivePill color={ENERGY}>{formatEnergy(energyBefore(speed))}</LivePill>;
+}
+
+function EnergyKept() {
+    const speed = useVar<number>("bounceSpeed", 2);
+    return <LivePill color={ENERGY}>{formatEnergy(energyBefore(speed) * ENERGY_KEPT_WHEN_LOCKED)}</LivePill>;
 }
 
 export const bounceApartBlocks: ReactElement[] = [
@@ -380,21 +412,31 @@ export const bounceApartBlocks: ReactElement[] = [
     <StackLayout key="layout-bounce-setup" maxWidth="xl">
         <Block id="bounce-setup" padding="sm">
             <EditableParagraph id="para-bounce-setup" blockId="bounce-setup">
-                Swap the magnets for springy bumpers and the trolleys leave separately, each with its own
-                velocity. Momentum still balances exactly as before, so what really separates the two
-                kinds of crash has to be a second quantity, the{" "}
-                <InlineTooltip id="tooltip-kinetic-energy-definition" tooltip="Kinetic energy is the energy an object has because it is moving: one half times its mass times its speed squared. Unlike momentum it has no direction, so it is never negative.">
+                Swap the magnets for springy bumpers and the <HeavyWord /> and <LightWord /> leave
+                separately, each with its own velocity. <MomentumWord /> still balances exactly as before,
+                so what really separates the two kinds of crash has to be a second quantity, the{" "}
+                <InlineTooltip id="tooltip-kinetic-energy-definition" color={ANSWER} bgColor={ANSWER_BG} tooltip="Kinetic energy is the energy an object has because it is moving: one half times its mass times its speed squared. Unlike momentum it has no direction, so it is never negative.">
                     kinetic energy
                 </InlineTooltip>
-                . Pull the arrow on the top trolley to choose a speed, then press play and watch both
-                crashes run at once.
+                . Pull the indigo arrow on the top trolley to choose a speed, then press play and watch
+                both crashes run at once.
             </EditableParagraph>
         </Block>
     </StackLayout>,
 
     <StackLayout key="layout-bounce-formula" maxWidth="xl">
         <Block id="bounce-formula" padding="lg">
-            <FormulaBlock latex="E_k = \tfrac{1}{2} m v^2" />
+            <FormulaBlock latex="\clr{e}{E_k} = \tfrac{1}{2}\,\clr{m}{m}\,\clr{v}{v}^2" colorMap={FORMULA_COLORS} />
+        </Block>
+    </StackLayout>,
+
+    <StackLayout key="layout-bounce-formula-live" maxWidth="xl">
+        <Block id="bounce-formula-live" padding="sm">
+            <FormulaBlock
+                latex="\clr{e}{E_k} = \tfrac{1}{2} \times \clr{m}{2} \times (\scrub{bounceSpeed})^2 = \val{bounceEnergyBefore}\,\text{J going in}"
+                colorMap={FORMULA_COLORS}
+                variables={scrubVarsFromDefinitions(["bounceSpeed", "bounceEnergyBefore"])}
+            />
         </Block>
     </StackLayout>,
 
@@ -407,11 +449,23 @@ export const bounceApartBlocks: ReactElement[] = [
     <StackLayout key="layout-bounce-reflect" maxWidth="xl">
         <Block id="bounce-reflect" padding="sm">
             <EditableParagraph id="para-bounce-reflect" blockId="bounce-reflect">
-                Here is the catch. Momentum comes out the same on both tracks, but the{" "}
+                Here is the catch.{" "}
                 <InlineLinkedHighlight
                     varName="bounceHighlight"
-                    highlightId="energy"
+                    highlightId="bounceMomentum"
                     {...linkedHighlightPropsFromDefinition(getVariableInfo("bounceHighlight"))}
+                    color={MOMENTUM_TEXT}
+                    bgColor={MOMENTUM_BG}
+                >
+                    Momentum
+                </InlineLinkedHighlight>{" "}
+                comes out the same on both tracks, but the{" "}
+                <InlineLinkedHighlight
+                    varName="bounceHighlight"
+                    highlightId="bounceEnergy"
+                    {...linkedHighlightPropsFromDefinition(getVariableInfo("bounceHighlight"))}
+                    color={ENERGY_TEXT}
+                    bgColor={ENERGY_BG}
                 >
                     energy
                 </InlineLinkedHighlight>{" "}
@@ -421,8 +475,9 @@ export const bounceApartBlocks: ReactElement[] = [
                     {...numberPropsFromDefinition(getVariableInfo("bounceSpeed"))}
                     formatValue={(value) => `${value.toFixed(1)}`}
                 />{" "}
-                m/s the springy bounce hands every joule back, while the locked pair keeps only two
-                thirds. The rest went into bending metal, into sound and into heat.
+                m/s the springy bounce hands back all <EnergyGoingIn /> of it, while the locked pair
+                keeps only <EnergyKept />, two thirds. The rest went into bending metal, into sound and
+                into heat.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -430,7 +485,7 @@ export const bounceApartBlocks: ReactElement[] = [
     <StackLayout key="layout-bounce-question-energy" maxWidth="xl">
         <Block id="bounce-question-energy" padding="md">
             <EditableParagraph id="para-bounce-question-energy" blockId="bounce-question-energy">
-                When two trolleys lock together, the kinetic energy afterwards is{" "}
+                When two trolleys lock together, the <EnergyWord /> afterwards is{" "}
                 <InlineFeedback
                     varName="answerBounceEnergy"
                     correctValue="smaller than"

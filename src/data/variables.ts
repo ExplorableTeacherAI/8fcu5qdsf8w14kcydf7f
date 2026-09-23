@@ -82,6 +82,53 @@ export interface VariableDefinition {
  */
 export const variableDefinitions: Record<string, VariableDefinition> = {
     // ─────────────────────────────────────────
+    // LESSON-WIDE: colour keys for the word pills (see sections/lessonWords.tsx)
+    // One hue per idea, used for nothing else anywhere in the lesson.
+    // ─────────────────────────────────────────
+    actorHeavy: {
+        defaultValue: 'heavy trolley',
+        type: 'text',
+        label: 'Heavy trolley',
+        description: 'Colour key for the heavy trolley: sky blue, used for nothing else',
+        color: '#62CCF9',
+    },
+    actorLight: {
+        defaultValue: 'light trolley',
+        type: 'text',
+        label: 'Light trolley',
+        description: 'Colour key for the light trolley: rose, used for nothing else',
+        color: '#F8A0CD',
+    },
+    quantityMomentum: {
+        defaultValue: 'momentum',
+        type: 'text',
+        label: 'Momentum',
+        description: 'Colour key for momentum p: teal, the bars and strips in every figure',
+        color: '#62D0AD',
+    },
+    quantityMass: {
+        defaultValue: 'mass',
+        type: 'text',
+        label: 'Mass',
+        description: 'Colour key for mass m: amber, the block stack on a trolley bed',
+        color: '#F7B23B',
+    },
+    quantityVelocity: {
+        defaultValue: 'velocity',
+        type: 'text',
+        label: 'Velocity',
+        description: 'Colour key for velocity v: indigo, the arrows on the trolleys',
+        color: '#8E90F5',
+    },
+    quantityEnergy: {
+        defaultValue: 'kinetic energy',
+        type: 'text',
+        label: 'Kinetic energy',
+        description: 'Colour key for kinetic energy: violet, the energy bars',
+        color: '#AC8BF9',
+    },
+
+    // ─────────────────────────────────────────
     // SECTION: Collisions (opening)
     // ─────────────────────────────────────────
     introPullback: {
@@ -93,7 +140,7 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
         min: 0.4,
         max: 2,
         step: 0.05,
-        color: '#62D0AD',
+        color: '#1E8FC2',
     },
     introTime: {
         defaultValue: 0,
@@ -124,7 +171,7 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
         min: 1,
         max: 5,
         step: 1,
-        color: '#64748B',
+        color: '#F7B23B',
     },
     momentumVelocity: {
         defaultValue: 2,
@@ -141,9 +188,20 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
         defaultValue: '',
         type: 'text',
         label: 'Momentum view highlight',
-        description: "Which quantity is highlighted across both views: '' | 'mass' | 'velocity' | 'momentum'",
+        description: "Which quantity is highlighted across both views: '' | 'massStack' | 'velocityArrow' | 'momentumBar'",
         color: '#62D0AD',
         bgColor: 'rgba(98, 208, 173, 0.22)',
+    },
+    momentumProduct: {
+        defaultValue: 6,
+        type: 'number',
+        label: 'Momentum p',
+        description: 'Live value of mass times velocity for the single trolley, written by the trolley figure and shown by \\val{} in the formula',
+        unit: 'kg m/s',
+        min: -15,
+        max: 15,
+        step: 0.1,
+        color: '#1F9E78',
     },
     answerMomentumProduct: {
         defaultValue: '',
@@ -152,7 +210,7 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
         description: 'Student answer for the momentum of a 4 kg trolley at 2.5 m/s',
         placeholder: '???',
         correctAnswer: '10',
-        color: '#8E90F5',
+        color: '#2563EB',
     },
     // ─────────────────────────────────────────
     // SECTION: When Things Stick Together
@@ -177,7 +235,7 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
         min: -2,
         max: 2.5,
         step: 0.05,
-        color: '#62D0AD',
+        color: '#F4A89A',
     },
     stickTime: {
         defaultValue: 0,
@@ -199,9 +257,31 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
         defaultValue: '',
         type: 'text',
         label: 'Sticking view highlight',
-        description: "Which element is highlighted: '' | 'heavy' | 'light' | 'pair'",
+        description: "Which element is highlighted: '' | 'stickHeavy' | 'stickLight' | 'stickTotal' | 'stickPair' (the pair, its faint prediction, and the total bar once locked)",
         color: '#62D0AD',
         bgColor: 'rgba(98, 208, 173, 0.22)',
+    },
+    stickTotalMomentum: {
+        defaultValue: 3,
+        type: 'number',
+        label: 'Momentum going in',
+        description: 'Live signed total of the two momenta before the magnets catch, written by the sticking figure for \\val{} in the formula',
+        unit: 'kg m/s',
+        min: -3,
+        max: 6,
+        step: 0.1,
+        color: '#1F9E78',
+    },
+    stickAfterVelocity: {
+        defaultValue: 0.75,
+        type: 'number',
+        label: 'Joined pair velocity',
+        description: 'Live velocity of the locked pair, written by the sticking figure for \\val{} in the formula',
+        unit: 'm/s',
+        min: -0.75,
+        max: 1.5,
+        step: 0.01,
+        color: '#5B5FD9',
     },
     answerStickSameSpeed: {
         defaultValue: '',
@@ -211,7 +291,7 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
         placeholder: '???',
         correctAnswer: 'at exactly the same speed as',
         options: ['faster than', 'slower than', 'at exactly the same speed as'],
-        color: '#8E90F5',
+        color: '#2563EB',
     },
     answerStickPairSpeed: {
         defaultValue: '',
@@ -220,7 +300,7 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
         description: 'Student answer for the speed of a 2 kg trolley at 3 m/s locking onto a stationary 4 kg trolley',
         placeholder: '???',
         correctAnswer: ['1', '1.0', '1 m/s'],
-        color: '#8E90F5',
+        color: '#2563EB',
     },
     // ─────────────────────────────────────────
     // SECTION: Working It Out Step by Step
@@ -233,13 +313,13 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
         min: 0,
         max: 3,
         step: 0.01,
-        color: '#62D0AD',
+        color: '#64748B',
     },
     workedHighlight: {
         defaultValue: '',
         type: 'text',
         label: 'Worked example highlight',
-        description: "Which element is highlighted across the trolleys and the working: '' | 'heavy' | 'light' | 'pair'",
+        description: "Which element is highlighted across the trolleys, the ledger and the working: '' | 'workedHeavy' | 'workedLight' | 'workedTotal' | 'workedPair'",
         color: '#62D0AD',
         bgColor: 'rgba(98, 208, 173, 0.22)',
     },
@@ -250,7 +330,7 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
         description: 'Student answer for a 5 kg trolley at 2 m/s locking onto a 3 kg trolley at 2 m/s the other way',
         placeholder: '???',
         correctAnswer: ['0.5', '.5', '0.50'],
-        color: '#8E90F5',
+        color: '#2563EB',
     },
     answerWorkedNegative: {
         defaultValue: '',
@@ -259,7 +339,7 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
         description: 'Student answer for the same pair when the 3 kg trolley arrives at 6 m/s',
         placeholder: '???',
         correctAnswer: ['-1', '\u22121', '-1.0'],
-        color: '#8E90F5',
+        color: '#2563EB',
     },
     // ─────────────────────────────────────────
     // SECTION: When Things Bounce Apart
@@ -295,9 +375,31 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
         defaultValue: '',
         type: 'text',
         label: 'Comparison highlight',
-        description: "Which quantity is highlighted: '' | 'momentum' | 'energy' | 'bounce' | 'stick'",
+        description: "Which quantity is highlighted: '' | 'bounceMomentum' | 'bounceEnergy' | 'bounceRowBounce' | 'bounceRowStick'",
         color: '#62D0AD',
         bgColor: 'rgba(98, 208, 173, 0.22)',
+    },
+    bounceEnergyBefore: {
+        defaultValue: 4,
+        type: 'number',
+        label: 'Kinetic energy going in',
+        description: 'Live kinetic energy of the incoming 2 kg trolley, written by the comparison figure for \\val{} in the formula',
+        unit: 'J',
+        min: 1,
+        max: 9,
+        step: 0.1,
+        color: '#7C4DDB',
+    },
+    bounceEnergyLocked: {
+        defaultValue: 2.7,
+        type: 'number',
+        label: 'Kinetic energy kept when locked',
+        description: 'Live kinetic energy the locked pair keeps, written by the comparison figure for \\val{} in the formula',
+        unit: 'J',
+        min: 0.6,
+        max: 6,
+        step: 0.1,
+        color: '#7C4DDB',
     },
     answerBounceEnergy: {
         defaultValue: '',
@@ -307,7 +409,7 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
         placeholder: '???',
         correctAnswer: 'smaller than',
         options: ['smaller than', 'the same as', 'larger than'],
-        color: '#8E90F5',
+        color: '#2563EB',
     },
     answerBounceJoules: {
         defaultValue: '',
@@ -316,7 +418,7 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
         description: 'Student answer for the kinetic energy of two 4 kg trolleys locked together at 1 m/s',
         placeholder: '???',
         correctAnswer: ['4', '4 J', '4.0'],
-        color: '#8E90F5',
+        color: '#2563EB',
     },
     answerMomentumDirection: {
         defaultValue: '',
@@ -325,7 +427,7 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
         description: 'Student answer for the momentum of the same trolley travelling left',
         placeholder: '???',
         correctAnswer: ['-10', '\u221210'],
-        color: '#8E90F5',
+        color: '#2563EB',
     },
 
 

@@ -4,12 +4,24 @@ import { StackLayout } from "@/components/layouts";
 import {
     EditableH1,
     EditableParagraph,
+    InlineScrubbleNumber,
     InlineTrigger,
     InteractionHintSequence,
 } from "@/components/atoms";
 import { Figure } from "@/components/molecules";
 import { useVar, useSetVar } from "@/stores";
 import { clamp, useRafLoop, useSpring, type Vec2 } from "@/lib/motion";
+import { getVariableInfo, numberPropsFromDefinition } from "../variables";
+import {
+    HEAVY_EDGE,
+    HEAVY_FILL,
+    INK_QUIET,
+    INK_STRUCTURE,
+    LIGHT_EDGE,
+    LIGHT_FILL,
+    VELOCITY,
+} from "./collisionPalette";
+import { HeavyWord, LightWord, LivePill } from "./lessonWords";
 
 // ── The opening scene: heavy trolley into a light one, springy bumpers ───────
 const HEAVY_MASS = 2;
@@ -24,23 +36,20 @@ const PX_PER_METRE = 60;
 const HEAVY_CONTACT_X = 250;
 const LIGHT_REST_X = 306;
 
-const INK = "#334155";
-const INK_STRUCTURE = "#64748B";
-const INK_QUIET = "#CBD5E1";
-const PAPER = "#F1F5F9";
-const ACCENT = "#62D0AD";
+const formatSpeed = (value: number) => `${value.toFixed(1)} m/s`;
+const formatPullback = (value: number) => `${value.toFixed(2)} m`;
 
 const speedFor = (pullback: number) => pullback * SPEED_PER_METRE;
 const approachSecondsFor = (pullback: number) => pullback / speedFor(pullback); // constant
 
-function Trolley({ centerX, width, height, label, stroke, strokeWidth, fill = PAPER }: {
+function Trolley({ centerX, width, height, label, stroke, strokeWidth, fill }: {
     centerX: number;
     width: number;
     height: number;
     label: string;
     stroke: string;
     strokeWidth: number;
-    fill?: string;
+    fill: string;
 }) {
     const bodyTop = TRACK_Y - 10 - height;
     return (
@@ -48,7 +57,7 @@ function Trolley({ centerX, width, height, label, stroke, strokeWidth, fill = PA
             <rect x={centerX - width / 2} y={bodyTop} width={width} height={height} rx="4" fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
             <circle cx={centerX - width / 2 + 12} cy={TRACK_Y - 8} r="7" fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
             <circle cx={centerX + width / 2 - 12} cy={TRACK_Y - 8} r="7" fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
-            <text x={centerX} y={bodyTop + height / 2 + 4} fill={INK} fontSize="11" textAnchor="middle">
+            <text x={centerX} y={bodyTop + height / 2 + 4} fill={stroke} fontSize="11" fontWeight="600" textAnchor="middle">
                 {label}
             </text>
         </g>
@@ -156,19 +165,30 @@ function OpeningCrashDrawing() {
                 pushed from here
             </text>
 
+            {/* The speed the push will give it — an indigo arrow, the lesson's velocity hue */}
+            {time === 0 && (
+                <g>
+                    <line x1={startX} y1={TRACK_Y - 52} x2={startX + speed * 22} y2={TRACK_Y - 52} stroke={VELOCITY} strokeWidth="3" strokeLinecap="round" />
+                    <polygon points={`${startX + speed * 22 + 9},${TRACK_Y - 52} ${startX + speed * 22 - 2},${TRACK_Y - 58} ${startX + speed * 22 - 2},${TRACK_Y - 46}`} fill={VELOCITY} />
+                    <text x={startX + speed * 11} y={TRACK_Y - 60} fill={VELOCITY} fontSize="11" textAnchor="middle" style={{ fontVariantNumeric: "tabular-nums" }}>
+                        {formatSpeed(speed)}
+                    </text>
+                </g>
+            )}
+
             {/* Where each trolley has been */}
             {trail.map((mark, index) => (
                 <g key={index} opacity={Math.max(mark.opacity, 0.06)}>
-                    <circle cx={mark.heavy} cy={TRACK_Y + 12} r="3" fill={ACCENT} />
-                    <circle cx={mark.light} cy={TRACK_Y + 12} r="3" fill={INK_STRUCTURE} />
+                    <circle cx={mark.heavy} cy={TRACK_Y + 12} r="3" fill={HEAVY_EDGE} />
+                    <circle cx={mark.light} cy={TRACK_Y + 12} r="3" fill={LIGHT_EDGE} />
                 </g>
             ))}
 
-            <Trolley centerX={now.light} width={48} height={26} label="light" stroke={INK_STRUCTURE} strokeWidth={1.5} />
+            <Trolley centerX={now.light} width={48} height={26} label="light" stroke={LIGHT_EDGE} strokeWidth={1.5} fill={LIGHT_FILL} />
 
             <g transform={`translate(${now.heavy} ${TRACK_Y}) scale(${heavyScale}) translate(${-now.heavy} ${-TRACK_Y})`}>
                 <g filter="url(#intro-trolley-shadow)">
-                    <Trolley centerX={now.heavy} width={64} height={30} label="heavy" stroke={ACCENT} strokeWidth={2.5} />
+                    <Trolley centerX={now.heavy} width={64} height={30} label="heavy" stroke={HEAVY_EDGE} strokeWidth={2.5} fill={HEAVY_FILL} />
                 </g>
             </g>
             <rect
@@ -205,7 +225,7 @@ function OpeningCrashFigure() {
                 setVar("introTime", 0);
                 setVar("introPlaying", false);
             }}
-            caption="Drag the teal trolley back along the track to load a harder push, then send it in and watch where the two of them end up."
+            caption="Drag the blue heavy trolley back along the track to load a harder push, then send it in and watch where the two of them end up."
         >
             <OpeningCrashDrawing />
             <InteractionHintSequence
@@ -223,6 +243,12 @@ function OpeningCrashFigure() {
     );
 }
 
+/** The speed the current pull-back gives the heavy trolley, live in the prose. */
+function ArrivalSpeed() {
+    const pullback = useVar<number>("introPullback", 1);
+    return <LivePill color={VELOCITY}>{formatSpeed(speedFor(pullback))}</LivePill>;
+}
+
 export const collisionsIntroBlocks: ReactElement[] = [
     <StackLayout key="layout-collisions-intro-title" maxWidth="xl">
         <Block id="collisions-intro-title" padding="md">
@@ -235,8 +261,14 @@ export const collisionsIntroBlocks: ReactElement[] = [
     <StackLayout key="layout-collisions-intro-hook" maxWidth="xl">
         <Block id="collisions-intro-hook" padding="sm">
             <EditableParagraph id="para-collisions-intro-hook" blockId="collisions-intro-hook">
-                Two trolleys sit on a low-friction track in the lab. Pull the heavy one back along the
-                track, give it{" "}
+                Two trolleys sit on a low-friction track in the lab, a <HeavyWord /> and a{" "}
+                <LightWord />. Pull the heavy one back{" "}
+                <InlineScrubbleNumber
+                    varName="introPullback"
+                    {...numberPropsFromDefinition(getVariableInfo("introPullback"))}
+                    formatValue={formatPullback}
+                />{" "}
+                along the track, so that it arrives at <ArrivalSpeed />, give it{" "}
                 <InlineTrigger id="trigger-collisions-push" varName="introPlaying" value={true} icon="play">
                     a push
                 </InlineTrigger>

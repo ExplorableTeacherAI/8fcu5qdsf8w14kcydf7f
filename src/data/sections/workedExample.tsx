@@ -17,6 +17,28 @@ import {
     getVariableInfo,
     linkedHighlightPropsFromDefinition,
 } from "../variables";
+import {
+    EASE_150,
+    FORMULA_COLORS,
+    HEAVY_BG,
+    HEAVY_EDGE,
+    HEAVY_FILL,
+    INK,
+    INK_QUIET,
+    INK_STRUCTURE,
+    LIGHT_BG,
+    LIGHT_EDGE,
+    LIGHT_FILL,
+    MASS_BG,
+    MASS_TEXT,
+    MOMENTUM_BG,
+    MOMENTUM_TEXT,
+    VELOCITY,
+    VELOCITY_BG,
+    VELOCITY_TEXT,
+} from "./collisionPalette";
+import { HeavyWord, LightWord } from "./lessonWords";
+import { MomentumLedger } from "./momentumLedger";
 
 // ── The worked case ──────────────────────────────────────────────────────────
 const HEAVY_MASS = 2;
@@ -29,12 +51,18 @@ const FINAL_VELOCITY = TOTAL_MOMENTUM / TOTAL_MASS; // 1.6
 
 // ── View geometry (view A) ───────────────────────────────────────────────────
 const VIEW_WIDTH = 380;
-const VIEW_HEIGHT = 260;
+const VIEW_HEIGHT = 340;
 const TRACK_Y = 170;
-const RAIL_Y = 214;
+const RAIL_Y = 206;
 const RAIL_LEFT = 60;
 const RAIL_RIGHT = 320;
 const PX_PER_VELOCITY = 22;
+const ARROW_Y = TRACK_Y - 70;
+
+// Momentum ledger under the rail — same zero mark at every stage
+const LEDGER_TOP = 246;
+const LEDGER_ANCHOR_X = 70;
+const LEDGER_PX_PER_UNIT = 28;
 
 const HEAVY_CONTACT_X = 160;
 const LIGHT_CONTACT_X = 220;
@@ -42,20 +70,11 @@ const HEAVY_START_X = 70;
 const LIGHT_START_X = 265;
 const JOINED_TRAVEL = 90;
 
-const INK = "#334155";
-const INK_STRUCTURE = "#64748B";
-const INK_QUIET = "#CBD5E1";
-const PAPER = "#F1F5F9";
-const ACCENT = "#62D0AD";
-const VELOCITY_HUE = "#8E90F5";
-
 const STAGE_LABELS = ["approach", "contact", "one lump", "moving off"];
 
 const formatVelocity = (value: number) => `${value.toFixed(1)} m/s`;
 
 // ── Shared highlight helpers — used by BOTH views ────────────────────────────
-const EASE_150 = { transition: "opacity 150ms ease, stroke-width 150ms ease" } as const;
-
 const useHighlightState = () => {
     const highlight = useVar<string>("workedHighlight", "");
     const setVar = useSetVar();
@@ -86,7 +105,7 @@ function Trolley({
     label,
     stroke,
     strokeWidth,
-    fill = PAPER,
+    fill,
 }: {
     centerX: number;
     width: number;
@@ -94,7 +113,7 @@ function Trolley({
     label: string;
     stroke: string;
     strokeWidth: number;
-    fill?: string;
+    fill: string;
 }) {
     const bodyTop = TRACK_Y - 10 - height;
     return (
@@ -102,8 +121,26 @@ function Trolley({
             <rect x={centerX - width / 2} y={bodyTop} width={width} height={height} rx="4" fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
             <circle cx={centerX - width / 2 + 12} cy={TRACK_Y - 8} r="7" fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
             <circle cx={centerX + width / 2 - 12} cy={TRACK_Y - 8} r="7" fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
-            <text x={centerX} y={bodyTop + height / 2 + 4} fill={INK} fontSize="12" textAnchor="middle" style={{ fontVariantNumeric: "tabular-nums" }}>
-                {label}
+            {label && (
+                <text x={centerX} y={bodyTop + height / 2 + 4} fill={stroke} fontSize="12" fontWeight="600" textAnchor="middle" style={{ fontVariantNumeric: "tabular-nums" }}>
+                    {label}
+                </text>
+            )}
+        </g>
+    );
+}
+
+/** An indigo velocity arrow with its size written above it. */
+function VelocityArrow({ fromX, velocity, strokeWidth, opacity }: { fromX: number; velocity: number; strokeWidth: number; opacity: number }) {
+    if (opacity < 0.02) return null;
+    const tipX = fromX + velocity * PX_PER_VELOCITY;
+    const direction = velocity >= 0 ? 1 : -1;
+    return (
+        <g opacity={opacity}>
+            <line x1={fromX} y1={ARROW_Y} x2={tipX} y2={ARROW_Y} stroke={VELOCITY} strokeWidth={strokeWidth} strokeLinecap="round" />
+            <polygon points={`${tipX + direction * 9},${ARROW_Y} ${tipX - direction * 2},${ARROW_Y - 6} ${tipX - direction * 2},${ARROW_Y + 6}`} fill={VELOCITY} />
+            <text x={(fromX + tipX) / 2} y={ARROW_Y - 9} fill={VELOCITY_TEXT} fontSize="11" textAnchor="middle" style={{ fontVariantNumeric: "tabular-nums" }}>
+                {formatVelocity(Math.abs(velocity))}
             </text>
         </g>
     );
@@ -113,7 +150,8 @@ function Trolley({
 function CrashStageDrawing() {
     const setVar = useSetVar();
     const stage = useVar<number>("workedStage", 0);
-    const { opacity, weight, isActive, hoverProps } = useHighlightState();
+    const highlight = useHighlightState();
+    const { opacity, weight, isActive, hoverProps } = highlight;
 
     const [dragging, setDragging] = useState(false);
     const [hovered, setHovered] = useState(false);
@@ -131,7 +169,8 @@ function CrashStageDrawing() {
 
     const incomingArrows = 1 - approach;
     const locked = stage >= 1.98;
-    const armY = TRACK_Y - 24;
+    const heavyId = locked ? "workedPair" : "workedHeavy";
+    const lightId = locked ? "workedPair" : "workedLight";
 
     const handleX = remap(clamp(stage, 0, 3), 0, 3, RAIL_LEFT, RAIL_RIGHT);
 
@@ -156,11 +195,11 @@ function CrashStageDrawing() {
             </defs>
 
             <g fontSize="12" style={{ fontVariantNumeric: "tabular-nums", ...EASE_150 }}>
-                <text x="24" y="30" fill={INK} opacity={opacity("heavy")}>
-                    2 kg · 3.0 m/s right
+                <text x="24" y="30" fill={HEAVY_EDGE} opacity={opacity("workedHeavy")}>
+                    heavy 2 kg · 3.0 m/s
                 </text>
-                <text x={VIEW_WIDTH - 24} y="30" fill={INK} textAnchor="end" opacity={opacity("light")}>
-                    1 kg · 1.2 m/s left
+                <text x={VIEW_WIDTH - 24} y="30" fill={LIGHT_EDGE} textAnchor="end" opacity={opacity("workedLight")}>
+                    light 1 kg · 1.2 m/s
                 </text>
             </g>
 
@@ -169,56 +208,38 @@ function CrashStageDrawing() {
             </g>
 
             {/* HEAVY — its counterpart is the 2 × 3 term in the working */}
-            <g {...hoverProps("heavy")} opacity={opacity("heavy")} style={EASE_150}>
-                {isActive("heavy") && (
+            <g {...hoverProps(heavyId)} opacity={opacity(heavyId)} style={EASE_150}>
+                {isActive(heavyId) && (
                     <g opacity={0.28}>
-                        <Trolley centerX={heavyX} width={70} height={28} label="" stroke={ACCENT} strokeWidth={9} fill="none" />
+                        <Trolley centerX={heavyX} width={70} height={28} label="" stroke={HEAVY_EDGE} strokeWidth={9} fill="none" />
                     </g>
                 )}
-                <Trolley centerX={heavyX} width={70} height={28} label="2 kg" stroke={locked ? ACCENT : INK_STRUCTURE} strokeWidth={weight("heavy", 1.5)} />
-                {incomingArrows > 0.02 && (
-                    <g opacity={incomingArrows}>
-                        <line x1={heavyX} y1={armY} x2={heavyX + HEAVY_VELOCITY * PX_PER_VELOCITY} y2={armY} stroke={VELOCITY_HUE} strokeWidth={weight("heavy", 2.5)} strokeLinecap="round" />
-                        <polygon points={`${heavyX + HEAVY_VELOCITY * PX_PER_VELOCITY + 9},${armY} ${heavyX + HEAVY_VELOCITY * PX_PER_VELOCITY - 2},${armY - 6} ${heavyX + HEAVY_VELOCITY * PX_PER_VELOCITY - 2},${armY + 6}`} fill={VELOCITY_HUE} />
-                    </g>
-                )}
+                <Trolley centerX={heavyX} width={70} height={28} label="2 kg" stroke={HEAVY_EDGE} fill={HEAVY_FILL} strokeWidth={weight(heavyId, 1.5)} />
+                <VelocityArrow fromX={heavyX} velocity={HEAVY_VELOCITY} strokeWidth={weight(heavyId, 2.5)} opacity={incomingArrows} />
             </g>
 
             {/* LIGHT — its counterpart is the 1 × (−1.2) term */}
-            <g {...hoverProps("light")} opacity={opacity("light")} style={EASE_150}>
-                {isActive("light") && (
+            <g {...hoverProps(lightId)} opacity={opacity(lightId)} style={EASE_150}>
+                {isActive(lightId) && (
                     <g opacity={0.28}>
-                        <Trolley centerX={lightX} width={50} height={24} label="" stroke={ACCENT} strokeWidth={9} fill="none" />
+                        <Trolley centerX={lightX} width={50} height={24} label="" stroke={LIGHT_EDGE} strokeWidth={9} fill="none" />
                     </g>
                 )}
-                <Trolley centerX={lightX} width={50} height={24} label="1 kg" stroke={locked ? ACCENT : INK_STRUCTURE} strokeWidth={weight("light", 1.5)} />
-                {incomingArrows > 0.02 && (
-                    <g opacity={incomingArrows}>
-                        <line x1={lightX} y1={armY} x2={lightX + LIGHT_VELOCITY * PX_PER_VELOCITY} y2={armY} stroke={VELOCITY_HUE} strokeWidth={weight("light", 2.5)} strokeLinecap="round" />
-                        <polygon points={`${lightX + LIGHT_VELOCITY * PX_PER_VELOCITY - 9},${armY} ${lightX + LIGHT_VELOCITY * PX_PER_VELOCITY + 2},${armY - 6} ${lightX + LIGHT_VELOCITY * PX_PER_VELOCITY + 2},${armY + 6}`} fill={VELOCITY_HUE} />
-                    </g>
-                )}
+                <Trolley centerX={lightX} width={50} height={24} label="1 kg" stroke={LIGHT_EDGE} fill={LIGHT_FILL} strokeWidth={weight(lightId, 1.5)} />
+                <VelocityArrow fromX={lightX} velocity={LIGHT_VELOCITY} strokeWidth={weight(lightId, 2.5)} opacity={incomingArrows} />
             </g>
 
             {/* PAIR — one lump of 3 kg, counterpart of the (2 + 1) and 1.6 terms */}
             {stage >= 1.5 && (
-                <g {...hoverProps("pair")} opacity={opacity("pair")} style={EASE_150}>
-                    {isActive("pair") && (
-                        <line x1={heavyX - 35} y1={TRACK_Y - 52} x2={lightX + 25} y2={TRACK_Y - 52} stroke={ACCENT} strokeWidth="9" opacity={0.28} strokeLinecap="round" />
+                <g {...hoverProps("workedPair")} opacity={opacity("workedPair")} style={EASE_150}>
+                    {isActive("workedPair") && (
+                        <line x1={heavyX - 35} y1={TRACK_Y - 46} x2={lightX + 25} y2={TRACK_Y - 46} stroke={MASS_TEXT} strokeWidth="9" opacity={0.28} strokeLinecap="round" />
                     )}
-                    <line x1={heavyX - 35} y1={TRACK_Y - 52} x2={lightX + 25} y2={TRACK_Y - 52} stroke={ACCENT} strokeWidth={weight("pair", 2.5)} strokeLinecap="round" />
-                    <text x={pairX} y={TRACK_Y - 60} fill={ACCENT} fontSize="12" textAnchor="middle">
+                    <line x1={heavyX - 35} y1={TRACK_Y - 46} x2={lightX + 25} y2={TRACK_Y - 46} stroke={INK_STRUCTURE} strokeWidth={weight("workedPair", 2.5)} strokeLinecap="round" />
+                    <text x={pairX} y={TRACK_Y - 52} fill={MASS_TEXT} fontSize="12" fontWeight="600" textAnchor="middle">
                         3 kg
                     </text>
-                    {departure > 0.02 && (
-                        <g opacity={departure}>
-                            <line x1={pairX} y1={armY} x2={pairX + FINAL_VELOCITY * PX_PER_VELOCITY} y2={armY} stroke={ACCENT} strokeWidth={weight("pair", 3)} strokeLinecap="round" />
-                            <polygon points={`${pairX + FINAL_VELOCITY * PX_PER_VELOCITY + 9},${armY} ${pairX + FINAL_VELOCITY * PX_PER_VELOCITY - 2},${armY - 6} ${pairX + FINAL_VELOCITY * PX_PER_VELOCITY - 2},${armY + 6}`} fill={ACCENT} />
-                            <text x={clamp(pairX, 80, 300)} y={TRACK_Y + 26} fill={ACCENT} fontSize="12" textAnchor="middle" style={{ fontVariantNumeric: "tabular-nums" }}>
-                                {formatVelocity(FINAL_VELOCITY)}
-                            </text>
-                        </g>
-                    )}
+                    <VelocityArrow fromX={pairX} velocity={FINAL_VELOCITY} strokeWidth={weight("workedPair", 3)} opacity={departure} />
                 </g>
             )}
 
@@ -230,7 +251,7 @@ function CrashStageDrawing() {
                     const active = Math.round(clamp(stage, 0, 3)) === index;
                     return (
                         <g key={label}>
-                            <circle cx={x} cy={RAIL_Y} r="4" fill={active ? ACCENT : INK_QUIET} />
+                            <circle cx={x} cy={RAIL_Y} r="4" fill={active ? INK_STRUCTURE : INK_QUIET} />
                             <text x={clamp(x, 50, 330)} y={RAIL_Y + 20} fill={active ? INK : INK_STRUCTURE} fontSize="10" textAnchor="middle">
                                 {label}
                             </text>
@@ -240,7 +261,7 @@ function CrashStageDrawing() {
             </g>
 
             <g transform={`translate(${handleX} ${RAIL_Y}) scale(${handleScale})`}>
-                <circle r="8" fill={ACCENT} filter="url(#worked-handle-shadow)" />
+                <circle r="8" fill={INK_STRUCTURE} filter="url(#worked-handle-shadow)" />
             </g>
             <circle
                 cx={handleX}
@@ -259,21 +280,35 @@ function CrashStageDrawing() {
                 onPointerEnter={() => setHovered(true)}
                 onPointerLeave={() => setHovered(false)}
             />
+
+            {/* Momentum ledger: the two terms tip to tail, and the total the lump carries away */}
+            <MomentumLedger
+                anchorX={LEDGER_ANCHOR_X}
+                top={LEDGER_TOP}
+                pxPerUnit={LEDGER_PX_PER_UNIT}
+                heavyMomentum={HEAVY_MASS * HEAVY_VELOCITY}
+                lightMomentum={LIGHT_MASS * LIGHT_VELOCITY}
+                locked={locked}
+                pairMass={TOTAL_MASS}
+                pairVelocity={FINAL_VELOCITY}
+                highlight={highlight}
+                ids={{ heavy: "workedHeavy", light: "workedLight", total: locked ? "workedPair" : "workedTotal" }}
+            />
         </svg>
     );
 }
 
 // ── VIEW B: the four lines of working, lit one at a time ─────────────────────
-function WorkingTerm({ id, children }: { id: string; children: React.ReactNode }) {
+function WorkingTerm({ id, hue, bg, children }: { id: string; hue: string; bg: string; children: React.ReactNode }) {
     const { opacity, isActive, hoverProps } = useHighlightState();
     return (
         <span
             {...hoverProps(id)}
             style={{
                 opacity: opacity(id),
-                color: isActive(id) ? ACCENT : "inherit",
-                fontWeight: isActive(id) ? 600 : 400,
-                backgroundColor: isActive(id) ? "rgba(98, 208, 173, 0.22)" : "transparent",
+                color: hue,
+                fontWeight: isActive(id) ? 600 : 500,
+                backgroundColor: isActive(id) ? bg : "transparent",
                 borderRadius: 4,
                 padding: "1px 3px",
                 transition: "opacity 150ms ease, color 150ms ease, background-color 150ms ease",
@@ -305,23 +340,34 @@ function WorkingLines() {
             content: (
                 <>
                     <PlainText>momentum in = </PlainText>
-                    <WorkingTerm id="heavy">2 × 3</WorkingTerm>
+                    <WorkingTerm id="workedHeavy" hue={HEAVY_EDGE} bg={HEAVY_BG}>2 × 3</WorkingTerm>
                     <PlainText> + </PlainText>
-                    <WorkingTerm id="light">1 × (−1.2)</WorkingTerm>
+                    <WorkingTerm id="workedLight" hue={LIGHT_EDGE} bg={LIGHT_BG}>1 × (−1.2)</WorkingTerm>
                 </>
             ),
         },
         {
             key: "total",
-            content: <PlainText>momentum in = 6 − 1.2 = 4.8 kg m/s</PlainText>,
+            content: (
+                <>
+                    <PlainText>momentum in = </PlainText>
+                    <WorkingTerm id="workedHeavy" hue={HEAVY_EDGE} bg={HEAVY_BG}>6</WorkingTerm>
+                    <PlainText> − </PlainText>
+                    <WorkingTerm id="workedLight" hue={LIGHT_EDGE} bg={LIGHT_BG}>1.2</WorkingTerm>
+                    <PlainText> = </PlainText>
+                    <WorkingTerm id="workedTotal" hue={MOMENTUM_TEXT} bg={MOMENTUM_BG}>4.8 kg m/s</WorkingTerm>
+                </>
+            ),
         },
         {
             key: "share",
             content: (
                 <>
-                    <PlainText>4.8 = </PlainText>
-                    <WorkingTerm id="pair">(2 + 1)</WorkingTerm>
-                    <PlainText> × v</PlainText>
+                    <WorkingTerm id="workedPair" hue={MOMENTUM_TEXT} bg={MOMENTUM_BG}>4.8</WorkingTerm>
+                    <PlainText> = </PlainText>
+                    <WorkingTerm id="workedPair" hue={MASS_TEXT} bg={MASS_BG}>(2 + 1)</WorkingTerm>
+                    <PlainText> × </PlainText>
+                    <WorkingTerm id="workedPair" hue={VELOCITY_TEXT} bg={VELOCITY_BG}>v</WorkingTerm>
                 </>
             ),
         },
@@ -329,8 +375,13 @@ function WorkingLines() {
             key: "solve",
             content: (
                 <>
-                    <PlainText>v = 4.8 ÷ 3 = </PlainText>
-                    <WorkingTerm id="pair">1.6 m/s</WorkingTerm>
+                    <WorkingTerm id="workedPair" hue={VELOCITY_TEXT} bg={VELOCITY_BG}>v</WorkingTerm>
+                    <PlainText> = </PlainText>
+                    <WorkingTerm id="workedPair" hue={MOMENTUM_TEXT} bg={MOMENTUM_BG}>4.8</WorkingTerm>
+                    <PlainText> ÷ </PlainText>
+                    <WorkingTerm id="workedPair" hue={MASS_TEXT} bg={MASS_BG}>3</WorkingTerm>
+                    <PlainText> = </PlainText>
+                    <WorkingTerm id="workedPair" hue={VELOCITY_TEXT} bg={VELOCITY_BG}>1.6 m/s</WorkingTerm>
                 </>
             ),
         },
@@ -354,7 +405,7 @@ function WorkingLines() {
                                 width: 3,
                                 alignSelf: "stretch",
                                 borderRadius: 2,
-                                backgroundColor: active ? ACCENT : "transparent",
+                                backgroundColor: active ? INK_STRUCTURE : "transparent",
                             }}
                         />
                         <span
@@ -363,7 +414,7 @@ function WorkingLines() {
                                 width: 8,
                                 height: 8,
                                 borderRadius: 999,
-                                backgroundColor: active ? ACCENT : INK_QUIET,
+                                backgroundColor: active ? INK_STRUCTURE : INK_QUIET,
                                 flexShrink: 0,
                             }}
                         />
@@ -396,7 +447,7 @@ function CrashStageFigure() {
                 setVar("workedStage", 0);
                 setVar("workedHighlight", "");
             }}
-            caption="Drag the handle along the rail to walk the crash from approach to lock-up and back again."
+            caption="Drag the handle along the rail to walk the crash from approach to lock-up and back again. The bars underneath add the blue and pink momenta tip to tail; the teal total is what the lump carries away."
         >
             <CrashStageDrawing />
             <InteractionHintSequence
@@ -405,7 +456,7 @@ function CrashStageFigure() {
                     {
                         gesture: "drag-horizontal",
                         label: "Drag the handle to move through the crash",
-                        position: { x: "16%", y: "82%" },
+                        position: { x: "16%", y: "50%" },
                         dragPath: { type: "line", startOffset: { x: -26, y: 0 }, endOffset: { x: 26, y: 0 } },
                     },
                 ]}
@@ -452,8 +503,8 @@ export const workedExampleBlocks: ReactElement[] = [
     <StackLayout key="layout-worked-example" maxWidth="xl">
         <Block id="worked-example" padding="sm">
             <EditableParagraph id="para-worked-example" blockId="worked-example">
-                Here is the whole method on one case. A 2 kg trolley moving right at 3 m/s meets a 1 kg
-                trolley moving left at 1.2 m/s, and the magnets catch. Drag the handle under the track
+                Here is the whole method on one case. A 2 kg <HeavyWord /> moving right at 3 m/s meets a
+                1 kg <LightWord /> moving left at 1.2 m/s, and the magnets catch. Drag the handle under the track
                 from approach to lock-up, and the line of working that belongs to each moment lights up
                 beside it.
             </EditableParagraph>
@@ -462,7 +513,10 @@ export const workedExampleBlocks: ReactElement[] = [
 
     <StackLayout key="layout-worked-formula" maxWidth="xl">
         <Block id="worked-formula" padding="lg">
-            <FormulaBlock latex="v = \frac{m_1 v_1 + m_2 v_2}{m_1 + m_2}" />
+            <FormulaBlock
+                latex="\clr{v}{v} = \frac{\clr{heavy}{m_1 v_1} + \clr{light}{m_2 v_2}}{\clr{m}{m_1 + m_2}}"
+                colorMap={FORMULA_COLORS}
+            />
         </Block>
     </StackLayout>,
 
@@ -483,13 +537,24 @@ export const workedExampleBlocks: ReactElement[] = [
                 the{" "}
                 <InlineLinkedHighlight
                     varName="workedHighlight"
-                    highlightId="light"
+                    highlightId="workedLight"
                     {...linkedHighlightPropsFromDefinition(getVariableInfo("workedHighlight"))}
+                    color={LIGHT_EDGE}
+                    bgColor={LIGHT_BG}
                 >
                     light trolley
                 </InlineLinkedHighlight>{" "}
-                brings in counts as negative, which is why the total falls to 4.8 instead of climbing to
-                7.2.
+                brings in counts as negative, which is why the{" "}
+                <InlineLinkedHighlight
+                    varName="workedHighlight"
+                    highlightId="workedTotal"
+                    {...linkedHighlightPropsFromDefinition(getVariableInfo("workedHighlight"))}
+                    color={MOMENTUM_TEXT}
+                    bgColor={MOMENTUM_BG}
+                >
+                    total
+                </InlineLinkedHighlight>{" "}
+                falls to 4.8 instead of climbing to 7.2.
             </EditableParagraph>
         </Block>
     </StackLayout>,

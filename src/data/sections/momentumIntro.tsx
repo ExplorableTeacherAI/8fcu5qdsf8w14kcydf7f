@@ -1,4 +1,4 @@
-import React, { useRef, useState, type ReactElement } from "react";
+import React, { useEffect, useRef, useState, type ReactElement } from "react";
 import { Block } from "@/components/templates";
 import { SplitLayout, StackLayout } from "@/components/layouts";
 import {
@@ -8,7 +8,6 @@ import {
     InlineFeedback,
     InlineLinkedHighlight,
     InlineScrubbleNumber,
-    InlineSpotColor,
     InlineTooltip,
     InteractionHintSequence,
 } from "@/components/atoms";
@@ -21,8 +20,26 @@ import {
     linkedHighlightPropsFromDefinition,
     numberPropsFromDefinition,
     scrubVarsFromDefinitions,
-    spotColorPropsFromDefinition,
 } from "../variables";
+import {
+    ANSWER,
+    ANSWER_BG,
+    FORMULA_COLORS,
+    INK,
+    INK_QUIET,
+    INK_STRUCTURE,
+    MASS,
+    MASS_BG,
+    MASS_FILL,
+    MASS_TEXT,
+    MOMENTUM,
+    MOMENTUM_TEXT,
+    PAPER,
+    VELOCITY,
+    VELOCITY_BG,
+    VELOCITY_TEXT,
+} from "./collisionPalette";
+import { LivePill, MassWord, MomentumWord, VelocityWord } from "./lessonWords";
 
 // ── Shared view geometry — THE VISIBLE TIE ───────────────────────────────────
 // Both figures use the same viewBox and the same pixels per kg m/s, and both
@@ -33,13 +50,6 @@ const VIEW_WIDTH = 380;
 const VIEW_HEIGHT = 300;
 const MOMENTUM_ANCHOR_X = 180; // x of momentum = 0 in BOTH views
 const PX_PER_MOMENTUM = 6; // pixels per kg m/s in BOTH views
-
-const INK = "#334155";
-const INK_STRUCTURE = "#64748B";
-const INK_QUIET = "#CBD5E1";
-const PAPER = "#F1F5F9";
-const ACCENT = "#62D0AD"; // momentum — the shared quantity
-const VELOCITY = "#8E90F5"; // the covariation partner students pull
 
 const DEFAULT_MASS = 3;
 const DEFAULT_VELOCITY = 2;
@@ -99,15 +109,15 @@ function SharedReadouts({ mass, momentum }: { mass: number; momentum: number }) 
     const { opacity } = useHighlightState();
     return (
         <g fontSize="12" style={{ fontVariantNumeric: "tabular-nums", ...EASE_150 }}>
-            <text x="24" y="34" fill={INK} opacity={opacity("mass")}>
+            <text x="24" y="34" fill={MASS_TEXT} opacity={opacity("massStack")}>
                 {`m = ${formatMass(mass)}`}
             </text>
             <text
                 x={VIEW_WIDTH - 24}
                 y="34"
-                fill={ACCENT}
+                fill={MOMENTUM_TEXT}
                 textAnchor="end"
-                opacity={opacity("momentum")}
+                opacity={opacity("momentumBar")}
             >
                 {`p = ${formatMomentum(momentum)}`}
             </text>
@@ -133,6 +143,9 @@ function TrolleyDrawing() {
     });
 
     const momentum = mass * velocity;
+    useEffect(() => {
+        setVar("momentumProduct", Number(momentum.toFixed(1)));
+    }, [momentum, setVar]);
     const topBlockY = BED_Y - mass * BLOCK_PITCH;
     const tipX = TROLLEY_CX + velocity * PX_PER_VELOCITY;
     const stripEndX = MOMENTUM_ANCHOR_X + momentum * PX_PER_MOMENTUM;
@@ -182,7 +195,7 @@ function TrolleyDrawing() {
             </g>
 
             {/* MASS group — the stack of 1 kg blocks, draggable up and down */}
-            <g {...hoverProps("mass")} opacity={opacity("mass")} style={EASE_150}>
+            <g {...hoverProps("massStack")} opacity={opacity("massStack")} style={EASE_150}>
                 {Array.from({ length: mass }, (_, index) => (
                     <rect
                         key={index}
@@ -191,12 +204,12 @@ function TrolleyDrawing() {
                         width="52"
                         height={BLOCK_HEIGHT}
                         rx="3"
-                        fill={PAPER}
-                        stroke={INK_STRUCTURE}
-                        strokeWidth={weight("mass", 1.5)}
+                        fill={MASS_FILL}
+                        stroke={MASS}
+                        strokeWidth={weight("massStack", 1.5)}
                     />
                 ))}
-                <text x={TROLLEY_CX - 34} y={topBlockY + 12} fill={INK} fontSize="12" textAnchor="end" style={{ fontVariantNumeric: "tabular-nums" }}>
+                <text x={TROLLEY_CX - 34} y={topBlockY + 12} fill={MASS_TEXT} fontSize="12" textAnchor="end" style={{ fontVariantNumeric: "tabular-nums" }}>
                     {formatMass(mass)}
                 </text>
                 <rect
@@ -217,13 +230,13 @@ function TrolleyDrawing() {
             </g>
 
             {/* VELOCITY group — the arrow students pull */}
-            <g {...hoverProps("velocity")} opacity={opacity("velocity")} style={EASE_150}>
+            <g {...hoverProps("velocityArrow")} opacity={opacity("velocityArrow")} style={EASE_150}>
                 {arrowVisible && (
                     <>
-                        <Halo active={isActive("velocity")}>
-                            <line x1={TROLLEY_CX} y1={ARROW_Y} x2={tipX} y2={ARROW_Y} stroke={VELOCITY} strokeWidth={weight("velocity", 3) + 6} strokeLinecap="round" />
+                        <Halo active={isActive("velocityArrow")}>
+                            <line x1={TROLLEY_CX} y1={ARROW_Y} x2={tipX} y2={ARROW_Y} stroke={VELOCITY} strokeWidth={weight("velocityArrow", 3) + 6} strokeLinecap="round" />
                         </Halo>
-                        <line x1={TROLLEY_CX} y1={ARROW_Y} x2={tipX} y2={ARROW_Y} stroke={VELOCITY} strokeWidth={weight("velocity", 3)} strokeLinecap="round" />
+                        <line x1={TROLLEY_CX} y1={ARROW_Y} x2={tipX} y2={ARROW_Y} stroke={VELOCITY} strokeWidth={weight("velocityArrow", 3)} strokeLinecap="round" />
                         <polygon
                             points={`${tipX + arrowHeadDirection * 11},${ARROW_Y} ${tipX - arrowHeadDirection * 3},${ARROW_Y - 7} ${tipX - arrowHeadDirection * 3},${ARROW_Y + 7}`}
                             fill={VELOCITY}
@@ -233,7 +246,7 @@ function TrolleyDrawing() {
                 <text
                     x={clamp(tipX, 60, 320)}
                     y="254"
-                    fill={VELOCITY}
+                    fill={VELOCITY_TEXT}
                     fontSize="12"
                     textAnchor="middle"
                     style={{ fontVariantNumeric: "tabular-nums" }}
@@ -243,12 +256,12 @@ function TrolleyDrawing() {
             </g>
 
             {/* MOMENTUM group — same anchor, same pixels per unit as the bar */}
-            <g {...hoverProps("momentum")} opacity={opacity("momentum")} style={EASE_150}>
+            <g {...hoverProps("momentumBar")} opacity={opacity("momentumBar")} style={EASE_150}>
                 <line x1={MOMENTUM_ANCHOR_X} y1={STRIP_Y - 12} x2={MOMENTUM_ANCHOR_X} y2={STRIP_Y + 12} stroke={INK_QUIET} strokeWidth="1.5" />
-                <Halo active={isActive("momentum")}>
-                    <line x1={MOMENTUM_ANCHOR_X} y1={STRIP_Y} x2={stripEndX} y2={STRIP_Y} stroke={ACCENT} strokeWidth={weight("momentum", 8) + 6} strokeLinecap="round" />
+                <Halo active={isActive("momentumBar")}>
+                    <line x1={MOMENTUM_ANCHOR_X} y1={STRIP_Y} x2={stripEndX} y2={STRIP_Y} stroke={MOMENTUM} strokeWidth={weight("momentumBar", 8) + 6} strokeLinecap="round" />
                 </Halo>
-                <line x1={MOMENTUM_ANCHOR_X} y1={STRIP_Y} x2={stripEndX} y2={STRIP_Y} stroke={ACCENT} strokeWidth={weight("momentum", 8)} strokeLinecap="round" />
+                <line x1={MOMENTUM_ANCHOR_X} y1={STRIP_Y} x2={stripEndX} y2={STRIP_Y} stroke={MOMENTUM} strokeWidth={weight("momentumBar", 8)} strokeLinecap="round" />
             </g>
 
             {/* Draggable arrow tip — the only handle with a shadow in this view */}
@@ -345,15 +358,15 @@ function MomentumBarDrawing() {
             </g>
 
             {/* MOMENTUM group — counterpart of the strip under the trolley */}
-            <g {...hoverProps("momentum")} opacity={opacity("momentum")} style={EASE_150}>
-                <Halo active={isActive("momentum")}>
+            <g {...hoverProps("momentumBar")} opacity={opacity("momentumBar")} style={EASE_150}>
+                <Halo active={isActive("momentumBar")}>
                     <rect
                         x={Math.min(MOMENTUM_ANCHOR_X, barEndX) - 4}
                         y={BAR_TOP - 4}
                         width={Math.abs(barEndX - MOMENTUM_ANCHOR_X) + 8}
                         height={BAR_BOTTOM - BAR_TOP + 8}
                         rx="6"
-                        fill={ACCENT}
+                        fill={MOMENTUM}
                     />
                 </Halo>
                 <rect
@@ -362,14 +375,14 @@ function MomentumBarDrawing() {
                     width={Math.abs(barEndX - MOMENTUM_ANCHOR_X)}
                     height={BAR_BOTTOM - BAR_TOP}
                     rx="3"
-                    fill={ACCENT}
-                    stroke={ACCENT}
-                    strokeWidth={weight("momentum", 1.5)}
+                    fill={MOMENTUM}
+                    stroke={MOMENTUM}
+                    strokeWidth={weight("momentumBar", 1.5)}
                 />
                 <text
                     x={clamp((MOMENTUM_ANCHOR_X + barEndX) / 2, 70, 310)}
                     y={BAR_TOP - 14}
-                    fill={ACCENT}
+                    fill={MOMENTUM_TEXT}
                     fontSize="12"
                     textAnchor="middle"
                     style={{ fontVariantNumeric: "tabular-nums" }}
@@ -380,7 +393,7 @@ function MomentumBarDrawing() {
 
             {/* Draggable bar end */}
             <g transform={`translate(${barEndX} ${BAR_MID_Y}) scale(${handleScale})`}>
-                <circle r="8" fill={ACCENT} filter="url(#momentum-bar-shadow)" />
+                <circle r="8" fill={MOMENTUM} filter="url(#momentum-bar-shadow)" />
             </g>
             <circle
                 cx={barEndX}
@@ -474,6 +487,19 @@ function MomentumBarFigure() {
     );
 }
 
+/** The momentum the current trolley would carry if it rolled left at its current speed. */
+function NegativeMomentum() {
+    const mass = useVar<number>("momentumMass", DEFAULT_MASS);
+    const velocity = useVar<number>("momentumVelocity", DEFAULT_VELOCITY);
+    const leftward = -Math.abs(mass * velocity);
+    return (
+        <>
+            a momentum of{" "}
+            <LivePill color={MOMENTUM}>{formatMomentum(leftward).replace("-", "\u2212")}</LivePill>
+        </>
+    );
+}
+
 export const momentumIntroBlocks: ReactElement[] = [
     <StackLayout key="layout-momentum-heading" maxWidth="xl">
         <Block id="momentum-heading" padding="md">
@@ -487,19 +513,36 @@ export const momentumIntroBlocks: ReactElement[] = [
         <Block id="momentum-setup" padding="sm">
             <EditableParagraph id="para-momentum-setup" blockId="momentum-setup">
                 A heavy trolley creeping along and a light trolley racing can be equally hard to stop.
-                Neither mass nor velocity on its own captures what an object brings into a collision. The
-                quantity that does is the two multiplied together, and it is called{" "}
-                <InlineTooltip id="tooltip-momentum-definition" tooltip="Momentum is mass multiplied by velocity. It measures how much motion an object carries, and it points in the direction the object is travelling.">
+                Neither <MassWord /> nor <VelocityWord /> on its own captures what an object brings
+                into a collision. The quantity that does is the two multiplied together, and it is
+                called{" "}
+                <InlineTooltip id="tooltip-momentum-definition" color={ANSWER} bgColor={ANSWER_BG} tooltip="Momentum is mass multiplied by velocity. It measures how much motion an object carries, and it points in the direction the object is travelling.">
                     momentum
                 </InlineTooltip>
-                . Stack blocks on the trolley bed or pull its{" "}
-                <InlineSpotColor varName="momentumVelocity" {...spotColorPropsFromDefinition(getVariableInfo("momentumVelocity"))}>
+                . Stack{" "}
+                <InlineLinkedHighlight
+                    varName="momentumHighlight"
+                    highlightId="massStack"
+                    {...linkedHighlightPropsFromDefinition(getVariableInfo("momentumHighlight"))}
+                    color={MASS_TEXT}
+                    bgColor={MASS_BG}
+                >
+                    amber blocks
+                </InlineLinkedHighlight>{" "}
+                on the trolley bed or pull its{" "}
+                <InlineLinkedHighlight
+                    varName="momentumHighlight"
+                    highlightId="velocityArrow"
+                    {...linkedHighlightPropsFromDefinition(getVariableInfo("momentumHighlight"))}
+                    color={VELOCITY_TEXT}
+                    bgColor={VELOCITY_BG}
+                >
                     indigo arrow
-                </InlineSpotColor>
+                </InlineLinkedHighlight>
                 , and the{" "}
                 <InlineLinkedHighlight
                     varName="momentumHighlight"
-                    highlightId="momentum"
+                    highlightId="momentumBar"
                     {...linkedHighlightPropsFromDefinition(getVariableInfo("momentumHighlight"))}
                 >
                     teal bar
@@ -512,9 +555,9 @@ export const momentumIntroBlocks: ReactElement[] = [
     <StackLayout key="layout-momentum-formula" maxWidth="xl">
         <Block id="momentum-formula" padding="lg">
             <FormulaBlock
-                latex="\clr{momentum}{p} = \scrub{momentumMass} \times \scrub{momentumVelocity}"
-                colorMap={{ momentum: ACCENT }}
-                variables={scrubVarsFromDefinitions(["momentumMass", "momentumVelocity"])}
+                latex="\clr{p}{p} = \clr{m}{m} \times \clr{v}{v} = \scrub{momentumMass} \times \scrub{momentumVelocity} = \val{momentumProduct}\,\text{kg m/s}"
+                colorMap={FORMULA_COLORS}
+                variables={scrubVarsFromDefinitions(["momentumMass", "momentumVelocity", "momentumProduct"])}
             />
         </Block>
     </StackLayout>,
@@ -532,12 +575,12 @@ export const momentumIntroBlocks: ReactElement[] = [
         <Block id="momentum-direction" padding="sm">
             <EditableParagraph id="para-momentum-direction" blockId="momentum-direction">
                 Direction counts as much as size. Along a straight track one direction is positive and
-                the other negative, so a{" "}
+                the other negative, so <MomentumWord /> can be negative: a{" "}
                 <InlineScrubbleNumber
                     varName="momentumMass"
                     {...numberPropsFromDefinition(getVariableInfo("momentumMass"))}
                 />{" "}
-                kg trolley rolling to the left carries negative momentum, even though its mass and its
+                kg trolley rolling to the left carries <NegativeMomentum />, even though its mass and its
                 speed are ordinary positive numbers. Add the two trolleys' signed momenta and you have
                 the total the pair brings into the crash.
             </EditableParagraph>
