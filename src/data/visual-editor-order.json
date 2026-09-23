@@ -26,8 +26,8 @@
     "adding-forward",
     "stick-heading",
     "stick-setup",
-    "stick-visual",
     "stick-formula",
+    "stick-visual",
     "stick-formula-live",
     "stick-reflect",
     "stick-question-shared",
@@ -334,26 +334,20 @@
     },
     {
       "id": "editor-full-stick-visual",
-      "type": "stack",
+      "type": "split",
       "columns": [
+        [
+          "stick-formula"
+        ],
         [
           "stick-visual"
         ]
       ],
       "props": {
-        "maxWidth": "xl"
-      }
-    },
-    {
-      "id": "layout-stick-formula",
-      "type": "stack",
-      "columns": [
-        [
-          "stick-formula"
-        ]
-      ],
-      "props": {
-        "maxWidth": "xl"
+        "ratio": "1:1",
+        "gap": "lg",
+        "reverse": false,
+        "align": "start"
       }
     },
     {
