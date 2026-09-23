@@ -6,6 +6,7 @@ import {
     EditableParagraph,
     InlineClozeInput,
     InlineFeedback,
+    InlineFormula,
     InlineLinkedHighlight,
     InlineScrubbleNumber,
     InteractionHintSequence,
@@ -345,7 +346,28 @@ export const addingMomentumBlocks: ReactElement[] = [
                 each other, bounce or stick. Momentum can move from one trolley to the other, but none of
                 it is lost and none is made. With the arrows set as they are, the total going in is{" "}
                 <TotalPill />, so after the crash the two trolleys must still add up to <TotalPill />.
+                Written as an equation, with the speeds before the crash called <InlineFormula latex="\clr{v}{u}" colorMap={FORMULA_COLORS} />{" "}
+                and the speeds after it called <InlineFormula latex="\clr{v}{v}" colorMap={FORMULA_COLORS} />:
             </EditableParagraph>
+        </Block>
+    </StackLayout>,
+
+    <StackLayout key="layout-adding-formula-rule" maxWidth="xl">
+        <Block id="adding-formula-rule" padding="lg">
+            <FormulaBlock
+                latex="\underbrace{\clr{heavy}{m_1 u_1} + \clr{light}{m_2 u_2}}_{\text{momentum before the crash}} = \underbrace{\clr{heavy}{m_1 v_1} + \clr{light}{m_2 v_2}}_{\text{momentum after the crash}}"
+                colorMap={FORMULA_COLORS}
+            />
+        </Block>
+    </StackLayout>,
+
+    <StackLayout key="layout-adding-formula-rule-live" maxWidth="xl">
+        <Block id="adding-formula-rule-live" padding="sm">
+            <FormulaBlock
+                latex="\underbrace{\clr{heavy}{3 \times} \scrub{addHeavyVelocity} + \clr{light}{1 \times} \scrub{addLightVelocity}}_{\text{before: what we know}} = \underbrace{\val{addTotalMomentum}\,\text{kg m/s}}_{\text{after: what the two trolleys must add up to}}"
+                colorMap={FORMULA_COLORS}
+                variables={scrubVarsFromDefinitions(["addHeavyVelocity", "addLightVelocity", "addTotalMomentum"])}
+            />
         </Block>
     </StackLayout>,
 

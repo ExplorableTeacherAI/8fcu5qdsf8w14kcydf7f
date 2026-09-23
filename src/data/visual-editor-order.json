@@ -19,6 +19,7 @@
     "adding-formula-live",
     "adding-visual",
     "adding-rule",
+    "adding-formula-rule",
     "adding-question-total",
     "adding-question-cancel",
     "adding-forward",
@@ -49,7 +50,8 @@
     "wrapup-heading",
     "wrapup-summary",
     "wrapup-table",
-    "wrapup-forward"
+    "wrapup-forward",
+    "adding-formula-rule-live"
   ],
   "rows": [
     {
@@ -239,6 +241,18 @@
       "columns": [
         [
           "adding-rule"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "editor-full-adding-formula-rule",
+      "type": "stack",
+      "columns": [
+        [
+          "adding-formula-rule"
         ]
       ],
       "props": {
@@ -605,6 +619,18 @@
       "columns": [
         [
           "wrapup-forward"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "editor-full-adding-formula-rule-live",
+      "type": "stack",
+      "columns": [
+        [
+          "adding-formula-rule-live"
         ]
       ],
       "props": {
