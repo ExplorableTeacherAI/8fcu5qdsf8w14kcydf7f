@@ -43,8 +43,8 @@
     "bounce-heading",
     "bounce-setup",
     "bounce-formula",
-    "bounce-visual",
     "bounce-formula-live",
+    "bounce-visual",
     "bounce-reflect",
     "bounce-question-energy",
     "bounce-question-joules",
@@ -506,7 +506,8 @@
       "type": "split",
       "columns": [
         [
-          "bounce-formula"
+          "bounce-formula",
+          "bounce-formula-live"
         ],
         [
           "bounce-visual"
@@ -517,18 +518,6 @@
         "gap": "lg",
         "reverse": false,
         "align": "start"
-      }
-    },
-    {
-      "id": "layout-bounce-formula-live",
-      "type": "stack",
-      "columns": [
-        [
-          "bounce-formula-live"
-        ]
-      ],
-      "props": {
-        "maxWidth": "xl"
       }
     },
     {
