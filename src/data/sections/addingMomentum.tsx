@@ -285,7 +285,9 @@ export const addingMomentumBlocks: ReactElement[] = [
             <EditableParagraph id="para-adding-setup" blockId="adding-setup">
                 Now put two trolleys on the same track: a 3 kg <HeavyWord /> and a 1 kg <LightWord />.
                 Each one has its own momentum. To find the total, add the two momenta, keeping their
-                signs: momentum to the right counts as plus, momentum to the left counts as minus. The
+                signs: momentum to the right counts as plus, momentum to the left counts as minus. We
+                call the speeds before the crash <InlineFormula latex="\clr{v}{u}" colorMap={FORMULA_COLORS} />, and
+                the speeds after it <InlineFormula latex="\clr{v}{v}" colorMap={FORMULA_COLORS} />. The
                 heavy trolley rolls at{" "}
                 <InlineScrubbleNumber
                     varName="addHeavyVelocity"
@@ -316,7 +318,7 @@ export const addingMomentumBlocks: ReactElement[] = [
     <StackLayout key="layout-adding-formula" maxWidth="xl">
         <Block id="adding-formula" padding="lg">
             <FormulaBlock
-                latex="\clr{heavy}{p_1} + \clr{light}{p_2} = \clr{heavy}{m_1 v_1} + \clr{light}{m_2 v_2} = \clr{p}{p}"
+                latex="\clr{heavy}{p_1} + \clr{light}{p_2} = \clr{heavy}{m_1 u_1} + \clr{light}{m_2 u_2} = \clr{p}{p}"
                 colorMap={FORMULA_COLORS}
             />
         </Block>
@@ -346,8 +348,7 @@ export const addingMomentumBlocks: ReactElement[] = [
                 each other, bounce or stick. Momentum can move from one trolley to the other, but none of
                 it is lost and none is made. With the arrows set as they are, the total going in is{" "}
                 <TotalPill />, so after the crash the two trolleys must still add up to <TotalPill />.
-                Written as an equation, with the speeds before the crash called <InlineFormula latex="\clr{v}{u}" colorMap={FORMULA_COLORS} />{" "}
-                and the speeds after it called <InlineFormula latex="\clr{v}{v}" colorMap={FORMULA_COLORS} />:
+                Written as an equation:
             </EditableParagraph>
         </Block>
     </StackLayout>,

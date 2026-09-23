@@ -513,7 +513,7 @@ export const workedExampleBlocks: ReactElement[] = [
     <StackLayout key="layout-worked-formula" maxWidth="xl">
         <Block id="worked-formula" padding="lg">
             <FormulaBlock
-                latex="\clr{v}{v} = \frac{\clr{heavy}{m_1 v_1} + \clr{light}{m_2 v_2}}{\clr{m}{m_1 + m_2}}"
+                latex="\clr{v}{v} = \frac{\clr{heavy}{m_1 u_1} + \clr{light}{m_2 u_2}}{\clr{m}{m_1 + m_2}}"
                 colorMap={FORMULA_COLORS}
             />
         </Block>

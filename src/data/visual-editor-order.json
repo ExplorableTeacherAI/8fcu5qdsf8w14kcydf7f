@@ -26,9 +26,9 @@
     "adding-forward",
     "stick-heading",
     "stick-setup",
+    "stick-visual",
     "stick-formula",
     "stick-formula-live",
-    "stick-visual",
     "stick-reflect",
     "stick-question-shared",
     "stick-question-speed",
@@ -51,7 +51,8 @@
     "wrapup-heading",
     "wrapup-summary",
     "wrapup-table",
-    "wrapup-forward"
+    "wrapup-forward",
+    "bounce-formula-momentum"
   ],
   "rows": [
     {
@@ -332,6 +333,18 @@
       }
     },
     {
+      "id": "editor-full-stick-visual",
+      "type": "stack",
+      "columns": [
+        [
+          "stick-visual"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
       "id": "layout-stick-formula",
       "type": "stack",
       "columns": [
@@ -349,18 +362,6 @@
       "columns": [
         [
           "stick-formula-live"
-        ]
-      ],
-      "props": {
-        "maxWidth": "xl"
-      }
-    },
-    {
-      "id": "layout-stick-visual",
-      "type": "stack",
-      "columns": [
-        [
-          "stick-visual"
         ]
       ],
       "props": {
@@ -631,6 +632,18 @@
       "columns": [
         [
           "wrapup-forward"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "editor-full-bounce-formula-momentum",
+      "type": "stack",
+      "columns": [
+        [
+          "bounce-formula-momentum"
         ]
       ],
       "props": {

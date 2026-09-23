@@ -460,7 +460,7 @@ export const stickTogetherBlocks: ReactElement[] = [
     <StackLayout key="layout-stick-formula" maxWidth="xl">
         <Block id="stick-formula" padding="lg">
             <FormulaBlock
-                latex="\clr{heavy}{m_1 v_1} + \clr{light}{m_2 v_2} = \clr{m}{(m_1 + m_2)}\,\clr{v}{v}"
+                latex="\clr{heavy}{m_1 u_1} + \clr{light}{m_2 u_2} = \clr{m}{(m_1 + m_2)}\,\clr{v}{v}"
                 colorMap={FORMULA_COLORS}
             />
         </Block>

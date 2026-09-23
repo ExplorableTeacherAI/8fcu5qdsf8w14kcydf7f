@@ -8,6 +8,7 @@ import {
     InlineClozeInput,
     InlineFeedback,
     InlineLinkedHighlight,
+    InlineFormula,
     InlineScrubbleNumber,
     InlineTooltip,
     InteractionHintSequence,
@@ -413,14 +414,26 @@ export const bounceApartBlocks: ReactElement[] = [
         <Block id="bounce-setup" padding="sm">
             <EditableParagraph id="para-bounce-setup" blockId="bounce-setup">
                 Swap the magnets for springy bumpers. Now the <HeavyWord /> and <LightWord /> bounce
-                apart, each with its own speed. <MomentumWord /> still adds up exactly as before. So the
-                real difference between the two kinds of crash must be a second quantity:{" "}
+                apart, each with its own speed. <MomentumWord /> still adds up exactly as before, but now
+                there are two unknown speeds after the crash, <InlineFormula latex="\clr{v}{v_1}" colorMap={FORMULA_COLORS} />{" "}
+                and <InlineFormula latex="\clr{v}{v_2}" colorMap={FORMULA_COLORS} />, and one equation is not enough to
+                find both. So the real difference between the two kinds of crash must be a second
+                quantity:{" "}
                 <InlineTooltip id="tooltip-kinetic-energy-definition" color={ANSWER} bgColor={ANSWER_BG} tooltip="Kinetic energy is the energy of a moving object: half of its mass times its speed squared. Unlike momentum, it has no direction, so it is never negative.">
                     kinetic energy
                 </InlineTooltip>
                 . Pull the indigo arrow on the top trolley to choose a speed, then press play and watch
                 both crashes at once.
             </EditableParagraph>
+        </Block>
+    </StackLayout>,
+
+    <StackLayout key="layout-bounce-formula-momentum" maxWidth="xl">
+        <Block id="bounce-formula-momentum" padding="lg">
+            <FormulaBlock
+                latex="\clr{heavy}{m_1 u_1} + \clr{light}{m_2 u_2} = \clr{heavy}{m_1 v_1} + \clr{light}{m_2 v_2}"
+                colorMap={FORMULA_COLORS}
+            />
         </Block>
     </StackLayout>,
 
