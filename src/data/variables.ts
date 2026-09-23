@@ -213,6 +213,68 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
         color: '#2563EB',
     },
     // ─────────────────────────────────────────
+    // SECTION: Adding Momentum
+    // ─────────────────────────────────────────
+    addHeavyVelocity: {
+        defaultValue: 2,
+        type: 'number',
+        label: 'Heavy trolley velocity',
+        description: 'Signed velocity of the 3 kg trolley before the crash, negative to the left',
+        unit: 'm/s',
+        min: -3,
+        max: 3,
+        step: 0.1,
+        color: '#8E90F5',
+    },
+    addLightVelocity: {
+        defaultValue: -3,
+        type: 'number',
+        label: 'Light trolley velocity',
+        description: 'Signed velocity of the 1 kg trolley before the crash, negative to the left',
+        unit: 'm/s',
+        min: -3,
+        max: 3,
+        step: 0.1,
+        color: '#8E90F5',
+    },
+    addTotalMomentum: {
+        defaultValue: 3,
+        type: 'number',
+        label: 'Total momentum',
+        description: 'Live signed sum of the two momenta, written by the adding figure for \\val{} in the formula',
+        unit: 'kg m/s',
+        min: -12,
+        max: 12,
+        step: 0.1,
+        color: '#1F9E78',
+    },
+    addHighlight: {
+        defaultValue: '',
+        type: 'text',
+        label: 'Adding momentum highlight',
+        description: "Which element is highlighted: '' | 'addHeavy' | 'addLight' | 'addTotal'",
+        color: '#62D0AD',
+        bgColor: 'rgba(98, 208, 173, 0.22)',
+    },
+    answerAddTotal: {
+        defaultValue: '',
+        type: 'text',
+        label: 'Total momentum answer',
+        description: 'Student answer for the total momentum of a 2 kg trolley at 3 m/s right and a 1 kg trolley at 2 m/s left',
+        placeholder: '???',
+        correctAnswer: ['4', '4.0', '+4'],
+        color: '#2563EB',
+    },
+    answerAddCancel: {
+        defaultValue: '',
+        type: 'text',
+        label: 'Cancelling momentum answer',
+        description: 'Student answer for the total when the 1 kg trolley rolls left at 6 m/s instead',
+        placeholder: '???',
+        correctAnswer: ['0', '0.0'],
+        color: '#2563EB',
+    },
+    // ─────────────────────────────────────────
     // SECTION: When Things Stick Together
     // ─────────────────────────────────────────
     stickHeavyVelocity: {
