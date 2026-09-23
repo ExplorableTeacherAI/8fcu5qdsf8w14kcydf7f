@@ -215,22 +215,11 @@
       }
     },
     {
-      "id": "layout-adding-formula",
-      "type": "stack",
-      "columns": [
-        [
-          "adding-formula"
-        ]
-      ],
-      "props": {
-        "maxWidth": "xl"
-      }
-    },
-    {
       "id": "layout-adding-formula-live",
       "type": "split",
       "columns": [
         [
+          "adding-formula",
           "adding-formula-live"
         ],
         [
