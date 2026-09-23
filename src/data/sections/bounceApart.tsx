@@ -229,7 +229,7 @@ function ComparisonDrawing() {
         {
             id: "bounceRowStick",
             trackY: 256,
-            title: "magnets: they lock together",
+            title: "magnets: they stick together",
             movingAfter: lockedVelocity,
             restingAfter: lockedVelocity,
             energyAfter: before.energy * ENERGY_KEPT_WHEN_LOCKED,
@@ -358,7 +358,7 @@ function ComparisonFigure() {
                 setVar("bouncePlaying", false);
                 setVar("bounceHighlight", "");
             }}
-            caption="Pull the indigo arrow on the top trolley to choose the incoming speed, then press play to run both crashes at once. The dashed outline on each bar is the value before the crash: the teal momentum bar never changes, the violet energy bar sometimes does."
+            caption="Pull the indigo arrow on the top trolley to choose the speed, then press play to run both crashes. The dashed outline on each bar shows the value before the crash. The teal momentum bar never changes. The violet energy bar sometimes does."
         >
             <ComparisonDrawing />
             <div className="px-6 pb-5">
@@ -412,14 +412,14 @@ export const bounceApartBlocks: ReactElement[] = [
     <StackLayout key="layout-bounce-setup" maxWidth="xl">
         <Block id="bounce-setup" padding="sm">
             <EditableParagraph id="para-bounce-setup" blockId="bounce-setup">
-                Swap the magnets for springy bumpers and the <HeavyWord /> and <LightWord /> leave
-                separately, each with its own velocity. <MomentumWord /> still balances exactly as before,
-                so what really separates the two kinds of crash has to be a second quantity, the{" "}
-                <InlineTooltip id="tooltip-kinetic-energy-definition" color={ANSWER} bgColor={ANSWER_BG} tooltip="Kinetic energy is the energy an object has because it is moving: one half times its mass times its speed squared. Unlike momentum it has no direction, so it is never negative.">
+                Swap the magnets for springy bumpers. Now the <HeavyWord /> and <LightWord /> bounce
+                apart, each with its own speed. <MomentumWord /> still adds up exactly as before. So the
+                real difference between the two kinds of crash must be a second quantity:{" "}
+                <InlineTooltip id="tooltip-kinetic-energy-definition" color={ANSWER} bgColor={ANSWER_BG} tooltip="Kinetic energy is the energy of a moving object: half of its mass times its speed squared. Unlike momentum, it has no direction, so it is never negative.">
                     kinetic energy
                 </InlineTooltip>
                 . Pull the indigo arrow on the top trolley to choose a speed, then press play and watch
-                both crashes run at once.
+                both crashes at once.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -459,7 +459,7 @@ export const bounceApartBlocks: ReactElement[] = [
                 >
                     Momentum
                 </InlineLinkedHighlight>{" "}
-                comes out the same on both tracks, but the{" "}
+                comes out the same on both tracks, but{" "}
                 <InlineLinkedHighlight
                     varName="bounceHighlight"
                     highlightId="bounceEnergy"
@@ -469,15 +469,14 @@ export const bounceApartBlocks: ReactElement[] = [
                 >
                     energy
                 </InlineLinkedHighlight>{" "}
-                does not: at{" "}
+                does not. At{" "}
                 <InlineScrubbleNumber
                     varName="bounceSpeed"
                     {...numberPropsFromDefinition(getVariableInfo("bounceSpeed"))}
                     formatValue={(value) => `${value.toFixed(1)}`}
                 />{" "}
-                m/s the springy bounce hands back all <EnergyGoingIn /> of it, while the locked pair
-                keeps only <EnergyKept />, two thirds. The rest went into bending metal, into sound and
-                into heat.
+                m/s the springy bounce gives back all <EnergyGoingIn /> of it, while the stuck pair
+                keeps only <EnergyKept />, two thirds. The rest went into bending metal, sound and heat.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -492,7 +491,7 @@ export const bounceApartBlocks: ReactElement[] = [
                     position="mid"
                     successMessage="✓"
                     failureMessage="✗"
-                    hint="Momentum is the quantity that always survives, and energy is not the same thing"
+                    hint="Momentum always survives a crash, but energy is a different thing"
                     visualizationHint={{
                         blockId: "bounce-visual",
                         hintKey: "feedback-bounce-energy-hint",
@@ -525,15 +524,15 @@ export const bounceApartBlocks: ReactElement[] = [
     <StackLayout key="layout-bounce-question-joules" maxWidth="xl">
         <Block id="bounce-question-joules" padding="md">
             <EditableParagraph id="para-bounce-question-joules" blockId="bounce-question-joules">
-                A 4 kg trolley moving at 2 m/s carries 8 J. It locks onto a stationary 4 kg trolley and
-                the pair moves off at 1 m/s, so the kinetic energy is now{" "}
+                A 4 kg trolley moving at 2 m/s has 8 J of kinetic energy. It sticks to a 4 kg trolley
+                that is standing still, and the pair moves off at 1 m/s. The kinetic energy is now{" "}
                 <InlineFeedback
                     varName="answerBounceJoules"
                     correctValue={["4", "4 J", "4.0"]}
                     position="terminal"
-                    successMessage="— yes, half of 8 kg times 1 squared is 4 J, so half the energy has gone"
+                    successMessage="— yes, half of 8 kg times 1 squared is 4 J, so half the energy is gone"
                     failureMessage="— not quite."
-                    hint="The moving mass is now 8 kg and the speed is 1 m/s, so put those into one half m v squared"
+                    hint="The moving mass is now 8 kg and the speed is 1 m/s. Put those into half m v squared"
                 >
                     <InlineClozeInput
                         varName="answerBounceJoules"

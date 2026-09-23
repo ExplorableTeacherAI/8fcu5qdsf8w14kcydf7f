@@ -270,7 +270,7 @@ function StickDrawing() {
                 <line x1="30" y1={TRACK_Y} x2={VIEW_WIDTH - 30} y2={TRACK_Y} stroke={INK_QUIET} strokeWidth="1.5" />
                 <line x1={PAIR_CONTACT_X} y1={TRACK_Y - 112} x2={PAIR_CONTACT_X} y2={TRACK_Y + 10} stroke={INK_QUIET} strokeWidth="1.5" strokeDasharray="4 5" />
                 <text x={PAIR_CONTACT_X} y={TRACK_Y + 26} fill={INK_STRUCTURE} fontSize="11" textAnchor="middle">
-                    they lock here
+                    they stick here
                 </text>
             </g>
 
@@ -404,7 +404,7 @@ function StickFigure() {
                 setVar("stickPlaying", false);
                 setVar("stickHighlight", "");
             }}
-            caption="Slide the faint coral pair to where you think the locked trolleys will be one second after the magnets catch, then press play. The bars underneath add the two momenta tip to tail; watch what happens to the teal total when they lock."
+            caption="Slide the faint coral pair to where you think the stuck-together trolleys will be one second after they meet, then press play. The bars below add the two momenta end to end. Watch what happens to the teal total when they stick."
         >
             <StickDrawing />
             <div className="px-6 pb-5">
@@ -420,7 +420,7 @@ function StickFigure() {
                 steps={[
                     {
                         gesture: "drag-horizontal",
-                        label: "Slide the faint coral pair to your prediction",
+                        label: "Slide the faint coral pair to your guess",
                         position: { x: "52%", y: "28%" },
                         dragPath: { type: "line", startOffset: { x: -30, y: 0 }, endOffset: { x: 30, y: 0 } },
                     },
@@ -453,9 +453,9 @@ export const stickTogetherBlocks: ReactElement[] = [
     <StackLayout key="layout-stick-setup" maxWidth="xl">
         <Block id="stick-setup" padding="sm">
             <EditableParagraph id="para-stick-setup" blockId="stick-setup">
-                Fit magnets to the facing ends of the <HeavyWord /> and the <LightWord /> and they stop
-                being two objects. They leave the collision locked together as a single lump, with the
-                combined mass and one shared velocity. Before releasing them, slide the{" "}
+                Put magnets on the front of the <HeavyWord /> and the <LightWord />. When they hit,
+                they stick, and leave the crash as one lump with one mass and one speed. Before you press
+                play, slide the{" "}
                 <InlineLinkedHighlight
                     varName="stickHighlight"
                     highlightId="stickPair"
@@ -465,7 +465,7 @@ export const stickTogetherBlocks: ReactElement[] = [
                 >
                     faint copy of the joined pair
                 </InlineLinkedHighlight>{" "}
-                to where you think it will be one second after they lock, then press play.
+                to where you think it will be one second after they stick.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -498,9 +498,9 @@ export const stickTogetherBlocks: ReactElement[] = [
     <StackLayout key="layout-stick-reflect" maxWidth="xl">
         <Block id="stick-reflect" padding="sm">
             <EditableParagraph id="para-stick-reflect" blockId="stick-reflect">
-                This is where the idea that the heavier object wins runs into trouble. Once the pair is
-                locked there is only one speed, so the heavy trolley cannot come off faster than the
-                light one. Against the light trolley's 3 m/s the heavy one brings{" "}
+                Many people think the heavier object wins. But once the pair is stuck there is only one
+                speed, so the heavy trolley cannot come out faster than the light one. The light trolley
+                comes in at 3 m/s and the heavy one at{" "}
                 <InlineScrubbleNumber
                     varName="stickHeavyVelocity"
                     {...numberPropsFromDefinition(getVariableInfo("stickHeavyVelocity"))}
@@ -515,8 +515,8 @@ export const stickTogetherBlocks: ReactElement[] = [
                 >
                     joined pair
                 </InlineLinkedHighlight>{" "}
-                moves off at <PairVelocity />. Below 1 m/s it leaves to the left instead, dragged
-                backwards by the lighter one.
+                moves off at <PairVelocity />. If the heavy one is slower than 1 m/s, the pair goes left
+                instead, pulled back by the lighter trolley.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -531,7 +531,7 @@ export const stickTogetherBlocks: ReactElement[] = [
                     position="mid"
                     successMessage="✓"
                     failureMessage="✗"
-                    hint="They are one object now, so ask what a single object can do"
+                    hint="They are one object now. Can one object have two speeds?"
                     visualizationHint={{
                         blockId: "stick-visual",
                         hintKey: "feedback-stick-shared-speed",
@@ -540,7 +540,7 @@ export const stickTogetherBlocks: ReactElement[] = [
                         steps: [
                             {
                                 gesture: "click",
-                                label: "Press play and watch the gap between the two trolleys after they lock",
+                                label: "Press play and watch the gap between the two trolleys after they stick",
                                 position: { x: "90%", y: "8%" },
                                 completionVar: "stickTime",
                                 completionValue: 1.6,
@@ -564,15 +564,15 @@ export const stickTogetherBlocks: ReactElement[] = [
     <StackLayout key="layout-stick-question-speed" maxWidth="xl">
         <Block id="stick-question-speed" padding="md">
             <EditableParagraph id="para-stick-question-speed" blockId="stick-question-speed">
-                A 2 kg trolley rolling right at 3 m/s locks onto a 4 kg trolley standing still, so the
-                joined pair moves off at{" "}
+                A 2 kg trolley rolling right at 3 m/s sticks to a 4 kg trolley that is standing still.
+                The joined pair moves off at{" "}
                 <InlineFeedback
                     varName="answerStickPairSpeed"
                     correctValue={["1", "1.0", "1 m/s"]}
                     position="terminal"
-                    successMessage="— yes, 6 kg m/s of momentum now has to be carried by 6 kg of trolley"
+                    successMessage="— yes, 6 kg m/s of momentum is now shared by 6 kg of trolley, so 6 ÷ 6 = 1"
                     failureMessage="— not yet."
-                    hint="Work out the momentum going in first, then share it over the mass that has to carry it"
+                    hint="First work out the momentum going in, then divide it by the total mass"
                 >
                     <InlineClozeInput
                         varName="answerStickPairSpeed"

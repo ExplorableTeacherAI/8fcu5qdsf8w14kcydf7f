@@ -447,7 +447,7 @@ function CrashStageFigure() {
                 setVar("workedStage", 0);
                 setVar("workedHighlight", "");
             }}
-            caption="Drag the handle along the rail to walk the crash from approach to lock-up and back again. The bars underneath add the blue and pink momenta tip to tail; the teal total is what the lump carries away."
+            caption="Drag the handle along the rail to step through the crash and back. The bars below add the blue and pink momenta end to end. The teal total is what the lump carries away."
         >
             <CrashStageDrawing />
             <InteractionHintSequence
@@ -455,7 +455,7 @@ function CrashStageFigure() {
                 steps={[
                     {
                         gesture: "drag-horizontal",
-                        label: "Drag the handle to move through the crash",
+                        label: "Drag the handle to step through the crash",
                         position: { x: "16%", y: "50%" },
                         dragPath: { type: "line", startOffset: { x: -26, y: 0 }, endOffset: { x: 26, y: 0 } },
                     },
@@ -474,7 +474,7 @@ function WorkingLinesFigure() {
                 setVar("workedStage", 0);
                 setVar("workedHighlight", "");
             }}
-            caption="The same four moments, written out. Click a line to jump the trolleys to it, or hover a term to find it on the track."
+            caption="The same four moments, written out. Click a line to jump the trolleys to that moment, or hover over a number to find it on the track."
         >
             <WorkingLines />
             <InteractionHintSequence
@@ -503,10 +503,9 @@ export const workedExampleBlocks: ReactElement[] = [
     <StackLayout key="layout-worked-example" maxWidth="xl">
         <Block id="worked-example" padding="sm">
             <EditableParagraph id="para-worked-example" blockId="worked-example">
-                Here is the whole method on one case. A 2 kg <HeavyWord /> moving right at 3 m/s meets a
-                1 kg <LightWord /> moving left at 1.2 m/s, and the magnets catch. Drag the handle under the track
-                from approach to lock-up, and the line of working that belongs to each moment lights up
-                beside it.
+                Here is the whole method on one example. A 2 kg <HeavyWord /> moving right at 3 m/s
+                meets a 1 kg <LightWord /> moving left at 1.2 m/s, and they stick. Drag the handle under
+                the track through the crash, and the line of working for each moment lights up beside it.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -532,9 +531,9 @@ export const workedExampleBlocks: ReactElement[] = [
     <StackLayout key="layout-worked-pattern" maxWidth="xl">
         <Block id="worked-pattern" padding="sm">
             <EditableParagraph id="para-worked-pattern" blockId="worked-pattern">
-                The pattern never changes. Add the signed momenta before the crash, divide by the total
-                mass, and keep the sign that comes out. That sign is the part worth checking: the 1.2 m/s
-                the{" "}
+                The steps are always the same. Add the momenta before the crash, keeping their plus and
+                minus signs. Divide by the total mass. Keep the sign of the answer. The signs are the part
+                to check: the{" "}
                 <InlineLinkedHighlight
                     varName="workedHighlight"
                     highlightId="workedLight"
@@ -544,7 +543,7 @@ export const workedExampleBlocks: ReactElement[] = [
                 >
                     light trolley
                 </InlineLinkedHighlight>{" "}
-                brings in counts as negative, which is why the{" "}
+                moves left, so its 1.2 m/s counts as negative. That is why the{" "}
                 <InlineLinkedHighlight
                     varName="workedHighlight"
                     highlightId="workedTotal"
@@ -554,7 +553,7 @@ export const workedExampleBlocks: ReactElement[] = [
                 >
                     total
                 </InlineLinkedHighlight>{" "}
-                falls to 4.8 instead of climbing to 7.2.
+                is 4.8, not 7.2.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -562,15 +561,15 @@ export const workedExampleBlocks: ReactElement[] = [
     <StackLayout key="layout-worked-question-pair" maxWidth="xl">
         <Block id="worked-question-pair" padding="md">
             <EditableParagraph id="para-worked-question-pair" blockId="worked-question-pair">
-                Now a fresh pair. A 5 kg trolley rolling right at 2 m/s locks onto a 3 kg trolley coming
-                the other way at 2 m/s, so the joined pair leaves at{" "}
+                Now try a new pair. A 5 kg trolley rolling right at 2 m/s sticks to a 3 kg trolley
+                coming the other way at 2 m/s. The joined pair leaves at{" "}
                 <InlineFeedback
                     varName="answerWorkedPairSpeed"
                     correctValue={["0.5", ".5", "0.50"]}
                     position="terminal"
-                    successMessage="— exactly, 10 going right and 6 going left leave 4 kg m/s for 8 kg to carry"
+                    successMessage="— yes, 10 going right minus 6 going left leaves 4 kg m/s, shared by 8 kg, so 4 ÷ 8 = 0.5"
                     failureMessage="— not quite."
-                    hint="Work out each trolley's momentum first, and give the one coming the other way a minus sign"
+                    hint="Find each trolley's momentum first. Give the one moving left a minus sign"
                 >
                     <InlineClozeInput
                         varName="answerWorkedPairSpeed"
@@ -586,14 +585,14 @@ export const workedExampleBlocks: ReactElement[] = [
     <StackLayout key="layout-worked-question-negative" maxWidth="xl">
         <Block id="worked-question-negative" padding="md">
             <EditableParagraph id="para-worked-question-negative" blockId="worked-question-negative">
-                Send that same 3 kg trolley in at 6 m/s instead, and the pair's velocity becomes{" "}
+                Now send the same 3 kg trolley in at 6 m/s instead. The pair's velocity becomes{" "}
                 <InlineFeedback
                     varName="answerWorkedNegative"
                     correctValue={["-1", "−1", "-1.0"]}
                     position="terminal"
-                    successMessage="— right, 10 minus 18 is negative, so the whole pair reverses and heads left"
+                    successMessage="— right, 10 minus 18 is −8, and −8 ÷ 8 = −1, so the pair heads left"
                     failureMessage="— close."
-                    hint="This time the momentum coming the other way is the larger of the two"
+                    hint="This time the momentum going left is bigger than the momentum going right"
                 >
                     <InlineClozeInput
                         varName="answerWorkedNegative"

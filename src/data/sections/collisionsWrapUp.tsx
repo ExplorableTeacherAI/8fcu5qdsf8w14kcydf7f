@@ -18,10 +18,10 @@ export const collisionsWrapUpBlocks: ReactElement[] = [
         <Block id="wrapup-summary" padding="sm">
             <EditableParagraph id="para-wrapup-summary" blockId="wrapup-summary">
                 So the crash itself was never the mystery. Whatever the trolleys do in that half second,
-                the signed momenta they carried in add up to the momenta they carry out, and that one
-                sentence is enough to predict a final velocity nobody has measured. Sticking leaves one
-                unknown and one equation; bouncing leaves two of each, with <EnergyWord /> supplying the
-                second.
+                the momentum they bring in equals the momentum they take out. That one sentence is enough
+                to predict a final speed that nobody has measured. When they stick there is one unknown
+                speed and one equation. When they bounce there are two unknown speeds, so we need a second
+                equation, and <EnergyWord /> gives it.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -31,7 +31,7 @@ export const collisionsWrapUpBlocks: ReactElement[] = [
             <Table
                 columns={[
                     { header: "Quantity", align: "left" },
-                    { header: "Magnets: they lock together", align: "left" },
+                    { header: "Magnets: they stick together", align: "left" },
                     { header: "Springy bumpers: they bounce apart", align: "left" },
                 ]}
                 rows={[
@@ -39,10 +39,10 @@ export const collisionsWrapUpBlocks: ReactElement[] = [
                         cells: [
                             <InlineFormula latex="\clr{p}{p} = \clr{m}{m}\clr{v}{v}" colorMap={FORMULA_COLORS} />,
                             <InlineHyperlink targetBlockId="stick-visual" color={MOMENTUM_TEXT} bgColor={MOMENTUM_BG} showHint={false}>
-                                conserved — the teal bar keeps its length
+                                stays the same — the teal bar keeps its length
                             </InlineHyperlink>,
                             <InlineHyperlink targetBlockId="bounce-visual" color={MOMENTUM_TEXT} bgColor={MOMENTUM_BG} showHint={false}>
-                                conserved — the teal bar keeps its length
+                                stays the same — the teal bar keeps its length
                             </InlineHyperlink>,
                         ],
                         highlight: true,
@@ -55,20 +55,20 @@ export const collisionsWrapUpBlocks: ReactElement[] = [
                                 some is lost — the violet bar shrinks
                             </InlineHyperlink>,
                             <InlineHyperlink targetBlockId="bounce-visual" color={ENERGY_TEXT} bgColor={ENERGY_BG} showHint={false}>
-                                conserved — the violet bar comes back whole
+                                stays the same — the violet bar comes back whole
                             </InlineHyperlink>,
                         ],
                     },
                     {
                         cells: [
-                            "Unknowns after the crash",
-                            "one shared velocity, so momentum alone fixes it",
-                            "two velocities, so momentum and energy are both needed",
+                            "Unknown speeds after the crash",
+                            "one shared speed, so momentum alone finds it",
+                            "two speeds, so momentum and energy are both needed",
                         ],
                     },
                 ]}
                 color={ENERGY}
-                caption="The two kinds of crash side by side. The highlighted row is the one that never fails: momentum survives every collision. Click a cell to jump back to its figure."
+                caption="The two kinds of crash side by side. The highlighted row is the rule that never fails: momentum survives every crash. Click a cell to jump back to its figure."
             />
         </Block>
     </StackLayout>,
@@ -76,11 +76,11 @@ export const collisionsWrapUpBlocks: ReactElement[] = [
     <StackLayout key="layout-wrapup-forward" maxWidth="xl">
         <Block id="wrapup-forward" padding="sm">
             <EditableParagraph id="para-wrapup-forward" blockId="wrapup-forward">
-                The idea worth carrying away is the split between those two quantities. <MomentumWord />{" "}
-                survives every collision, while <EnergyWord>energy</EnergyWord> only survives the springy
-                ones. That is why a car's crumple zone is built to destroy energy on purpose. Next comes
-                the same reasoning off the straight track, where two objects meet at an angle and
-                momentum has to balance in two directions at once.
+                The idea to take away is the difference between these two quantities. <MomentumWord />{" "}
+                survives every crash. <EnergyWord>Energy</EnergyWord> only survives the springy ones. That
+                is why a car's crumple zone is designed to use up energy on purpose. Next we leave the
+                straight track, where two objects meet at an angle and momentum has to balance in two
+                directions at once.
             </EditableParagraph>
         </Block>
     </StackLayout>,

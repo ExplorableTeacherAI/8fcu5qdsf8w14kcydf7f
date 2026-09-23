@@ -427,7 +427,7 @@ function TrolleyFigure() {
                 setVar("momentumVelocity", DEFAULT_VELOCITY);
                 setVar("momentumHighlight", "");
             }}
-            caption="Drag the top of the block stack to load or unload the trolley, and pull the indigo arrow to change how fast it rolls."
+            caption="Drag the top of the block stack to add or remove blocks, and pull the indigo arrow to change the speed."
         >
             <TrolleyDrawing />
             <div className="px-6 pb-5">
@@ -469,7 +469,7 @@ function MomentumBarFigure() {
                 setVar("momentumVelocity", DEFAULT_VELOCITY);
                 setVar("momentumHighlight", "");
             }}
-            caption="The same momentum, measured against a scale. Drag the end of the bar instead and the trolley speeds up to match."
+            caption="The same momentum, shown on a scale. Drag the end of the bar and the trolley changes speed to match."
         >
             <MomentumBarDrawing />
             <InteractionHintSequence
@@ -512,11 +512,10 @@ export const momentumIntroBlocks: ReactElement[] = [
     <StackLayout key="layout-momentum-setup" maxWidth="xl">
         <Block id="momentum-setup" padding="sm">
             <EditableParagraph id="para-momentum-setup" blockId="momentum-setup">
-                A heavy trolley creeping along and a light trolley racing can be equally hard to stop.
-                Neither <MassWord /> nor <VelocityWord /> on its own captures what an object brings
-                into a collision. The quantity that does is the two multiplied together, and it is
-                called{" "}
-                <InlineTooltip id="tooltip-momentum-definition" color={ANSWER} bgColor={ANSWER_BG} tooltip="Momentum is mass multiplied by velocity. It measures how much motion an object carries, and it points in the direction the object is travelling.">
+                A heavy trolley moving slowly and a light trolley moving fast can be just as hard to
+                stop. So neither <MassWord /> nor <VelocityWord /> on its own tells you how much push an
+                object brings to a crash. What does is the two multiplied together. This is called{" "}
+                <InlineTooltip id="tooltip-momentum-definition" color={ANSWER} bgColor={ANSWER_BG} tooltip="Momentum is mass times velocity. It says how much motion an object has, and which way it is going.">
                     momentum
                 </InlineTooltip>
                 . Stack{" "}
@@ -529,7 +528,7 @@ export const momentumIntroBlocks: ReactElement[] = [
                 >
                     amber blocks
                 </InlineLinkedHighlight>{" "}
-                on the trolley bed or pull its{" "}
+                on the trolley or pull its{" "}
                 <InlineLinkedHighlight
                     varName="momentumHighlight"
                     highlightId="velocityArrow"
@@ -547,7 +546,7 @@ export const momentumIntroBlocks: ReactElement[] = [
                 >
                     teal bar
                 </InlineLinkedHighlight>{" "}
-                beside it answers.
+                beside it change.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -574,15 +573,15 @@ export const momentumIntroBlocks: ReactElement[] = [
     <StackLayout key="layout-momentum-direction" maxWidth="xl">
         <Block id="momentum-direction" padding="sm">
             <EditableParagraph id="para-momentum-direction" blockId="momentum-direction">
-                Direction counts as much as size. Along a straight track one direction is positive and
-                the other negative, so <MomentumWord /> can be negative: a{" "}
+                Direction matters as much as size. On a straight track we call one direction positive
+                and the other negative. So <MomentumWord /> can be negative: a{" "}
                 <InlineScrubbleNumber
                     varName="momentumMass"
                     {...numberPropsFromDefinition(getVariableInfo("momentumMass"))}
                 />{" "}
-                kg trolley rolling to the left carries <NegativeMomentum />, even though its mass and its
-                speed are ordinary positive numbers. Add the two trolleys' signed momenta and you have
-                the total the pair brings into the crash.
+                kg trolley rolling to the left has <NegativeMomentum />, even though its mass and speed
+                are ordinary positive numbers. Add the two trolleys' momenta, minus signs and all, and you
+                get the total they bring into the crash.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -590,14 +589,14 @@ export const momentumIntroBlocks: ReactElement[] = [
     <StackLayout key="layout-momentum-question-product" maxWidth="xl">
         <Block id="momentum-question-product" padding="md">
             <EditableParagraph id="para-momentum-question-product" blockId="momentum-question-product">
-                A 4 kg trolley rolling to the right at 2.5 m/s therefore carries a momentum of{" "}
+                So a 4 kg trolley rolling to the right at 2.5 m/s has a momentum of{" "}
                 <InlineFeedback
                     varName="answerMomentumProduct"
                     correctValue="10"
                     position="terminal"
-                    successMessage="— exactly, 4 multiplied by 2.5 gives 10, and the plus sign says it is heading right"
+                    successMessage="— yes, 4 times 2.5 is 10, and it is positive because the trolley is going right"
                     failureMessage="— not quite."
-                    hint="Momentum is the mass and the velocity multiplied, not added"
+                    hint="Multiply the mass and the velocity, do not add them"
                 >
                     <InlineClozeInput
                         varName="answerMomentumProduct"
@@ -613,15 +612,15 @@ export const momentumIntroBlocks: ReactElement[] = [
     <StackLayout key="layout-momentum-question-direction" maxWidth="xl">
         <Block id="momentum-question-direction" padding="md">
             <EditableParagraph id="para-momentum-question-direction" blockId="momentum-question-direction">
-                Turn that same trolley around so it rolls to the left at 2.5 m/s, and its momentum
+                Now turn the same trolley around so it rolls to the left at 2.5 m/s. Its momentum
                 becomes{" "}
                 <InlineFeedback
                     varName="answerMomentumDirection"
                     correctValue={["-10", "−10"]}
                     position="terminal"
-                    successMessage="— right, the size is unchanged and only the sign flips, because only the direction changed"
+                    successMessage="— right, the size stays 10 and only the sign flips, because only the direction changed"
                     failureMessage="— almost."
-                    hint="The mass and the speed are the same as before, so only one thing about the answer can differ"
+                    hint="The mass and speed have not changed, so only one thing about the answer can"
                     visualizationHint={{
                         blockId: "momentum-visual",
                         hintKey: "feedback-momentum-negative-hint",
@@ -630,7 +629,7 @@ export const momentumIntroBlocks: ReactElement[] = [
                         steps: [
                             {
                                 gesture: "drag-vertical",
-                                label: "Drag the top of the block stack up until the trolley carries 4 kg",
+                                label: "Drag the top of the block stack up until the trolley has 4 kg",
                                 position: { x: "47%", y: "48%" },
                                 completionVar: "momentumMass",
                                 completionValue: 4,
@@ -638,7 +637,7 @@ export const momentumIntroBlocks: ReactElement[] = [
                             },
                             {
                                 gesture: "drag-horizontal",
-                                label: "Now pull the indigo arrow left past zero to 2.5 m/s the other way, and read the bar",
+                                label: "Now pull the indigo arrow to the left, past zero, to 2.5 m/s, and read the bar",
                                 position: { x: "66%", y: "69%" },
                                 completionVar: "momentumVelocity",
                                 completionValue: -2.5,

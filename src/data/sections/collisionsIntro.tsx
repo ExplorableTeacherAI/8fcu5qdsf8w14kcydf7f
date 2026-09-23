@@ -225,7 +225,7 @@ function OpeningCrashFigure() {
                 setVar("introTime", 0);
                 setVar("introPlaying", false);
             }}
-            caption="Drag the blue heavy trolley back along the track to load a harder push, then send it in and watch where the two of them end up."
+            caption="Drag the blue heavy trolley back for a harder push, then press play and watch where the two trolleys end up."
         >
             <OpeningCrashDrawing />
             <InteractionHintSequence
@@ -261,19 +261,19 @@ export const collisionsIntroBlocks: ReactElement[] = [
     <StackLayout key="layout-collisions-intro-hook" maxWidth="xl">
         <Block id="collisions-intro-hook" padding="sm">
             <EditableParagraph id="para-collisions-intro-hook" blockId="collisions-intro-hook">
-                Two trolleys sit on a low-friction track in the lab, a <HeavyWord /> and a{" "}
-                <LightWord />. Pull the heavy one back{" "}
+                Two trolleys sit on a smooth track: a <HeavyWord /> and a <LightWord />. Pull the
+                heavy one back{" "}
                 <InlineScrubbleNumber
                     varName="introPullback"
                     {...numberPropsFromDefinition(getVariableInfo("introPullback"))}
                     formatValue={formatPullback}
                 />{" "}
-                along the track, so that it arrives at <ArrivalSpeed />, give it{" "}
+                so it arrives at <ArrivalSpeed />, and give it{" "}
                 <InlineTrigger id="trigger-collisions-push" varName="introPlaying" value={true} icon="play">
                     a push
                 </InlineTrigger>
-                , and half a second later both are moving in ways nobody in the room called out. Physics
-                can call them, and with surprisingly little information.
+                . Half a second later both trolleys are moving, and it is hard to guess how. Physics can
+                tell you, and it needs very little information to do it.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -287,10 +287,10 @@ export const collisionsIntroBlocks: ReactElement[] = [
     <StackLayout key="layout-collisions-intro-promise" maxWidth="xl">
         <Block id="collisions-intro-promise" padding="sm">
             <EditableParagraph id="para-collisions-intro-promise" blockId="collisions-intro-promise">
-                The reason is that a colliding pair carries something through the crash untouched. By the
-                end of this lesson you will be able to take two objects, their masses and their speeds,
-                and work out how fast each one moves once they have hit. All you need to bring is the
-                everyday sense of how heavy something is and how fast it is going; we build the rest here.
+                The reason is simple: something about the two trolleys stays the same through the crash.
+                By the end of this lesson you will be able to take two objects, their masses and their
+                speeds, and work out how fast each one moves after they hit. All you need to start is a
+                feel for how heavy something is and how fast it is going. We build the rest here.
             </EditableParagraph>
         </Block>
     </StackLayout>,
