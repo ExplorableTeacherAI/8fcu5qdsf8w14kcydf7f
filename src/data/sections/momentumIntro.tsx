@@ -10,7 +10,9 @@ import {
     InlineLinkedHighlight,
     InlineScrubbleNumber,
     InlineTooltip,
+    InlineTrigger,
     InteractionHintSequence,
+    InlineSpotColor,
 } from "@/components/atoms";
 import { Figure, FigureSlider, FormulaBlock } from "@/components/molecules";
 import { useVar, useSetVar } from "@/stores";
@@ -606,17 +608,7 @@ export const momentumIntroBlocks: ReactElement[] = [
 
     <StackLayout key="layout-momentum-direction" maxWidth="xl">
         <Block id="momentum-direction" padding="sm">
-            <EditableParagraph id="para-momentum-direction" blockId="momentum-direction">
-                Direction matters as much as size. On a straight track we call one direction positive
-                and the other negative. So <MomentumWord /> can be negative: a{" "}
-                <InlineScrubbleNumber
-                    varName="momentumMass"
-                    {...numberPropsFromDefinition(getVariableInfo("momentumMass"))}
-                />{" "}
-                kg trolley rolling to the left has <NegativeMomentum />, even though its mass and speed
-                are ordinary positive numbers. Add the two trolleys' momenta, minus signs and all, and you
-                get the total they bring into the crash.
-            </EditableParagraph>
+            <EditableParagraph id="para-momentum-direction" blockId="momentum-direction">Direction matters as much as size. On a straight track we call rolling to the right <InlineTrigger varName={"momentumVelocity"} value={2} color={"#10B981"} bgColor={"rgba(16, 185, 129, 0.15)"} id={"trigger-momentum-positive"}>positive</InlineTrigger> and rolling to the left <InlineTrigger varName={"momentumVelocity"} value={-2} color={"#10B981"} bgColor={"rgba(16, 185, 129, 0.15)"} id={"trigger-momentum-negative"}>negative</InlineTrigger>. So <InlineSpotColor varName={"quantityMomentum"} color={"#62D0AD"} id={"spotColor-1790154217087-0dpj0"}>momentum</InlineSpotColor> can be negative: a <InlineScrubbleNumber varName={"momentumMass"} defaultValue={3} min={1} max={5} step={1} color={"#F7B23B"} id={"scrubble-1790154217087-z1594"} /> kg trolley rolling to the left has a momentum of −6.0 kg m/s, even though its mass and speed are ordinary positive numbers. Add the two trolleys' momenta, minus signs and all, and you get the total they bring into the crash.</EditableParagraph>
         </Block>
     </StackLayout>,
 
