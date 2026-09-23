@@ -1,4 +1,626 @@
 {
-  "version": 2,
-  "blockIds": []
+  "version": 3,
+  "blockIds": [
+    "collisions-intro-title",
+    "collisions-intro-hook",
+    "block-1787708572562",
+    "collisions-intro-promise",
+    "momentum-heading",
+    "momentum-setup",
+    "momentum-formula",
+    "momentum-visual",
+    "momentum-bar-visual",
+    "momentum-direction",
+    "momentum-question-product",
+    "momentum-question-direction",
+    "adding-heading",
+    "adding-setup",
+    "adding-formula",
+    "adding-formula-live",
+    "adding-visual",
+    "adding-rule",
+    "adding-question-total",
+    "adding-question-cancel",
+    "adding-forward",
+    "stick-heading",
+    "stick-setup",
+    "stick-formula",
+    "stick-formula-live",
+    "stick-visual",
+    "stick-reflect",
+    "stick-question-shared",
+    "stick-question-speed",
+    "worked-heading",
+    "worked-example",
+    "worked-formula",
+    "worked-visual",
+    "worked-working-visual",
+    "worked-pattern",
+    "worked-question-pair",
+    "worked-question-negative",
+    "bounce-heading",
+    "bounce-setup",
+    "bounce-formula",
+    "bounce-formula-live",
+    "bounce-visual",
+    "bounce-reflect",
+    "bounce-question-energy",
+    "bounce-question-joules",
+    "wrapup-heading",
+    "wrapup-summary",
+    "wrapup-table",
+    "wrapup-forward"
+  ],
+  "rows": [
+    {
+      "id": "layout-collisions-intro-title",
+      "type": "stack",
+      "columns": [
+        [
+          "collisions-intro-title"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-collisions-intro-hook",
+      "type": "stack",
+      "columns": [
+        [
+          "collisions-intro-hook"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-collisions-opening-crash",
+      "type": "stack",
+      "columns": [
+        [
+          "block-1787708572562"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-collisions-intro-promise",
+      "type": "stack",
+      "columns": [
+        [
+          "collisions-intro-promise"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-momentum-heading",
+      "type": "stack",
+      "columns": [
+        [
+          "momentum-heading"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-momentum-setup",
+      "type": "stack",
+      "columns": [
+        [
+          "momentum-setup"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-momentum-formula",
+      "type": "stack",
+      "columns": [
+        [
+          "momentum-formula"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-momentum-pair",
+      "type": "split",
+      "columns": [
+        [
+          "momentum-visual"
+        ],
+        [
+          "momentum-bar-visual"
+        ]
+      ],
+      "props": {
+        "ratio": "1:1",
+        "gap": "lg",
+        "reverse": false,
+        "align": "start"
+      }
+    },
+    {
+      "id": "layout-momentum-direction",
+      "type": "stack",
+      "columns": [
+        [
+          "momentum-direction"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-momentum-question-product",
+      "type": "stack",
+      "columns": [
+        [
+          "momentum-question-product"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-momentum-question-direction",
+      "type": "stack",
+      "columns": [
+        [
+          "momentum-question-direction"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-adding-heading",
+      "type": "stack",
+      "columns": [
+        [
+          "adding-heading"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-adding-setup",
+      "type": "stack",
+      "columns": [
+        [
+          "adding-setup"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-adding-formula",
+      "type": "stack",
+      "columns": [
+        [
+          "adding-formula"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-adding-formula-live",
+      "type": "split",
+      "columns": [
+        [
+          "adding-formula-live"
+        ],
+        [
+          "adding-visual"
+        ]
+      ],
+      "props": {
+        "ratio": "1:1",
+        "gap": "lg",
+        "reverse": false,
+        "align": "start"
+      }
+    },
+    {
+      "id": "layout-adding-rule",
+      "type": "stack",
+      "columns": [
+        [
+          "adding-rule"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-adding-question-total",
+      "type": "stack",
+      "columns": [
+        [
+          "adding-question-total"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-adding-question-cancel",
+      "type": "stack",
+      "columns": [
+        [
+          "adding-question-cancel"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-adding-forward",
+      "type": "stack",
+      "columns": [
+        [
+          "adding-forward"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-stick-heading",
+      "type": "stack",
+      "columns": [
+        [
+          "stick-heading"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-stick-setup",
+      "type": "stack",
+      "columns": [
+        [
+          "stick-setup"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-stick-formula",
+      "type": "stack",
+      "columns": [
+        [
+          "stick-formula"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-stick-formula-live",
+      "type": "stack",
+      "columns": [
+        [
+          "stick-formula-live"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-stick-visual",
+      "type": "stack",
+      "columns": [
+        [
+          "stick-visual"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-stick-reflect",
+      "type": "stack",
+      "columns": [
+        [
+          "stick-reflect"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-stick-question-shared",
+      "type": "stack",
+      "columns": [
+        [
+          "stick-question-shared"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-stick-question-speed",
+      "type": "stack",
+      "columns": [
+        [
+          "stick-question-speed"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-worked-heading",
+      "type": "stack",
+      "columns": [
+        [
+          "worked-heading"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-worked-example",
+      "type": "stack",
+      "columns": [
+        [
+          "worked-example"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-worked-formula",
+      "type": "stack",
+      "columns": [
+        [
+          "worked-formula"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-worked-pair",
+      "type": "split",
+      "columns": [
+        [
+          "worked-visual"
+        ],
+        [
+          "worked-working-visual"
+        ]
+      ],
+      "props": {
+        "ratio": "1:1",
+        "gap": "lg",
+        "reverse": false,
+        "align": "start"
+      }
+    },
+    {
+      "id": "layout-worked-pattern",
+      "type": "stack",
+      "columns": [
+        [
+          "worked-pattern"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-worked-question-pair",
+      "type": "stack",
+      "columns": [
+        [
+          "worked-question-pair"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-worked-question-negative",
+      "type": "stack",
+      "columns": [
+        [
+          "worked-question-negative"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-bounce-heading",
+      "type": "stack",
+      "columns": [
+        [
+          "bounce-heading"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-bounce-setup",
+      "type": "stack",
+      "columns": [
+        [
+          "bounce-setup"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-bounce-formula",
+      "type": "stack",
+      "columns": [
+        [
+          "bounce-formula"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-bounce-formula-live",
+      "type": "stack",
+      "columns": [
+        [
+          "bounce-formula-live"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-bounce-visual",
+      "type": "stack",
+      "columns": [
+        [
+          "bounce-visual"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-bounce-reflect",
+      "type": "stack",
+      "columns": [
+        [
+          "bounce-reflect"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-bounce-question-energy",
+      "type": "stack",
+      "columns": [
+        [
+          "bounce-question-energy"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-bounce-question-joules",
+      "type": "stack",
+      "columns": [
+        [
+          "bounce-question-joules"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-wrapup-heading",
+      "type": "stack",
+      "columns": [
+        [
+          "wrapup-heading"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-wrapup-summary",
+      "type": "stack",
+      "columns": [
+        [
+          "wrapup-summary"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-wrapup-table",
+      "type": "stack",
+      "columns": [
+        [
+          "wrapup-table"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    },
+    {
+      "id": "layout-wrapup-forward",
+      "type": "stack",
+      "columns": [
+        [
+          "wrapup-forward"
+        ]
+      ],
+      "props": {
+        "maxWidth": "xl"
+      }
+    }
+  ]
 }

@@ -86,6 +86,7 @@ initializeVariableColors(variableDefinitions);
 
 import { collisionsIntroBlocks } from "./sections/collisionsIntro";
 import { momentumIntroBlocks } from "./sections/momentumIntro";
+import { addingMomentumBlocks } from "./sections/addingMomentum";
 import { stickTogetherBlocks } from "./sections/stickTogether";
 import { workedExampleBlocks } from "./sections/workedExample";
 import { bounceApartBlocks } from "./sections/bounceApart";
@@ -94,6 +95,7 @@ import { collisionsWrapUpBlocks } from "./sections/collisionsWrapUp";
 export const blocks: ReactElement[] = [
     ...collisionsIntroBlocks,
     ...momentumIntroBlocks,
+    ...addingMomentumBlocks,
     ...stickTogetherBlocks,
     ...workedExampleBlocks,
     ...bounceApartBlocks,

@@ -40,7 +40,7 @@ import {
     VELOCITY_BG,
     VELOCITY_TEXT,
 } from "./collisionPalette";
-import { LivePill, MassWord, MomentumWord, VelocityWord } from "./lessonWords";
+import { LivePill, MassWord, VelocityWord } from "./lessonWords";
 
 // ── Shared view geometry — THE VISIBLE TIE ───────────────────────────────────
 // Both figures use the same viewBox and the same pixels per kg m/s, and both
@@ -608,7 +608,7 @@ export const momentumIntroBlocks: ReactElement[] = [
 
     <StackLayout key="layout-momentum-direction" maxWidth="xl">
         <Block id="momentum-direction" padding="sm">
-            <EditableParagraph id="para-momentum-direction" blockId="momentum-direction">Direction matters as much as size. On a straight track we call rolling to the right <InlineTrigger varName={"momentumVelocity"} value={2} color={"#10B981"} bgColor={"rgba(16, 185, 129, 0.15)"} id={"trigger-momentum-positive"}>positive</InlineTrigger> and rolling to the left <InlineTrigger varName={"momentumVelocity"} value={-2} color={"#10B981"} bgColor={"rgba(16, 185, 129, 0.15)"} id={"trigger-momentum-negative"}>negative</InlineTrigger>. So <InlineSpotColor varName={"quantityMomentum"} color={"#62D0AD"} id={"spotColor-1790154217087-0dpj0"}>momentum</InlineSpotColor> can be negative: a <InlineScrubbleNumber varName={"momentumMass"} defaultValue={3} min={1} max={5} step={1} color={"#F7B23B"} id={"scrubble-1790154217087-z1594"} /> kg trolley rolling to the left has a momentum of −6.0 kg m/s, even though its mass and speed are ordinary positive numbers.</EditableParagraph>
+            <EditableParagraph id="para-momentum-direction" blockId="momentum-direction">Direction matters as much as size. On a straight track we call rolling to the right <InlineTrigger varName={"momentumVelocity"} value={2} color={"#10B981"} bgColor={"rgba(16, 185, 129, 0.15)"} id={"trigger-momentum-positive"}>positive</InlineTrigger> and rolling to the left <InlineTrigger varName={"momentumVelocity"} value={-2} color={"#10B981"} bgColor={"rgba(16, 185, 129, 0.15)"} id={"trigger-momentum-negative"}>negative</InlineTrigger>. So <InlineSpotColor varName={"quantityMomentum"} color={"#62D0AD"} id={"spotColor-1790154217087-0dpj0"}>momentum</InlineSpotColor> can be negative: a <InlineScrubbleNumber varName={"momentumMass"} defaultValue={3} min={1} max={5} step={1} color={"#F7B23B"} id={"scrubble-1790154217087-z1594"} /> kg trolley rolling to the left has <NegativeMomentum />, even though its mass and speed are ordinary positive numbers.</EditableParagraph>
         </Block>
     </StackLayout>,
 

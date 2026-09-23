@@ -39,7 +39,7 @@ import {
     VELOCITY,
     VELOCITY_TEXT,
 } from "./collisionPalette";
-import { HeavyWord, LightWord, LivePill } from "./lessonWords";
+import { LivePill } from "./lessonWords";
 import { MomentumLedger } from "./momentumLedger";
 
 // ── The model ────────────────────────────────────────────────────────────────
@@ -453,7 +453,7 @@ export const stickTogetherBlocks: ReactElement[] = [
 
     <StackLayout key="layout-stick-setup" maxWidth="xl">
         <Block id="stick-setup" padding="sm">
-            <EditableParagraph id="para-stick-setup" blockId="stick-setup">Let's put magnets on the front of the <InlineSpotColor varName={"actorHeavy"} color={"#62CCF9"} id={"spotColor-1790154341223-0kx5u"}>heavy trolley</InlineSpotColor> and the <InlineSpotColor varName={"actorLight"} color={"#F8A0CD"} id={"spotColor-1790154341223-d42kj"}>light trolley</InlineSpotColor>. When they hit, they stick, and leave the crash as one lump with one mass and one speed. Before you press play, slide the <InlineLinkedHighlight varName={"stickHighlight"} highlightId={"stickPair"} color={"#1F9E78"} bgColor={"rgba(244, 168, 154, 0.25)"} id={"linkedHighlight-1790154341223-ka7t7"}>faint copy of the joined pair</InlineLinkedHighlight> to where you think it will be one second after they stick.</EditableParagraph>
+            <EditableParagraph id="para-stick-setup" blockId="stick-setup">Let's put magnets on the front of the <InlineSpotColor varName={"actorHeavy"} color={"#62CCF9"} id={"spotColor-1790154341223-0kx5u"}>heavy trolley</InlineSpotColor> and the <InlineSpotColor varName={"actorLight"} color={"#F8A0CD"} id={"spotColor-1790154341223-d42kj"}>light trolley</InlineSpotColor>. When they hit, they stick, and leave the crash as one lump with one mass and one speed. The total momentum going in must now be carried by that one lump, and that fixes its speed. Before you press play, slide the <InlineLinkedHighlight varName={"stickHighlight"} highlightId={"stickPair"} color={"#1F9E78"} bgColor={"rgba(244, 168, 154, 0.25)"} id={"linkedHighlight-1790154341223-ka7t7"}>faint copy of the joined pair</InlineLinkedHighlight> to where you think it will be one second after they stick.</EditableParagraph>
         </Block>
     </StackLayout>,
 
