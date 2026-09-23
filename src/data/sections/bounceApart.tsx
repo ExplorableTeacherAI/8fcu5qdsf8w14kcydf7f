@@ -445,11 +445,7 @@ export const bounceApartBlocks: ReactElement[] = [
 
     <StackLayout key="layout-bounce-formula-live" maxWidth="xl">
         <Block id="bounce-formula-live" padding="sm">
-            <FormulaBlock
-                latex="\clr{e}{E_k} = \tfrac{1}{2} \times \clr{m}{2} \times (\scrub{bounceSpeed})^2 = \val{bounceEnergyBefore}\,\text{J going in}"
-                colorMap={FORMULA_COLORS}
-                variables={scrubVarsFromDefinitions(["bounceSpeed", "bounceEnergyBefore"])}
-            />
+            <FormulaBlock latex={"\\clr{e}{E_k} = \\tfrac{1}{2} \\times \\clr{m}{2} \\times (\\scrub{bounceSpeed})^2 = \\val{bounceEnergyBefore}\\,\\text{J}"} colorMap={{"p": "#1F9E78", "m": "#C27803", "v": "#5B5FD9", "e": "#7C4DDB", "heavy": "#1E8FC2", "light": "#C4508F"}} variables={{"bounceSpeed": {"min": 1, "max": 3, "step": 0.1, "color": "#8E90F5"}}} color={"#000000"} />
         </Block>
     </StackLayout>,
 
